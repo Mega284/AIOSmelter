@@ -552,12 +552,6 @@ begin
   end;
 end;
 
-
-
-
-// Sjoe's part
-
-
 function SmeltingScreen: Boolean;    // Creds To Ashaman baby
 var
   CTS: Integer;
