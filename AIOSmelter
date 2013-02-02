@@ -181,10 +181,10 @@ begin
         'SwDpZbUkk01P0fWDe+t40BMzuRK2xP5C7ApGMuiTiMr2Sic/OipAF' +
         '6JZ38UydaQ8nES7Hi3tDRh2yrW2vYTrb+SMWeE63Yyd3UNdX7t32+' +
         'kitqr+fXfp7m5s/En4ZK9jDp08BEL6qR69E=');
-      X1.Coordinate :=
-      Y1.Coordinate :=
-      X2.Coordinate :=
-      Y2.Coordinate := 
+      X1.Coordinate := 30
+      Y1.Coordinate := 185
+      X2.Coordinate := 56
+      Y2.Coordinate := 213
     end;
 
     'rune':
@@ -195,6 +195,10 @@ begin
         'tH8GF4ISDLwZw/2YKdo4zHDoGCwmcixjM5rHHxgsKUNlH5xVp4l7v' +
         'mk8KyzsDpb4fiNKaZO4fYpQyYa+UkNyl1K5dd7+M6Cq+s+1efERVO' +
         'p6iP4AVBy6O/');
+      X1.Coordinate := 129
+      Y1.Coordinate := 234
+      X2.Coordinate := 156
+      Y2.Coordinate := 263
     end;
 
     'gold':
@@ -205,6 +209,10 @@ begin
         'QrZRaTVRvCq5+6/0uxNfTjrQnZzI5+Oo+O8CEZsRyQvTQBScbXsXj' +
         'uJX0Z6Ml9d3zo83gttX1CloQ7stM/vCNns2WwQZKr50010yv/ASV9' +
         'NEsA/QWwQ42u');
+      X1.Coordinate := 79
+      Y1.Coordinate := 132
+      X2.Coordinate := 105
+      Y2.Coordinate := 164
     end;
 
     'silver':
@@ -215,6 +223,10 @@ begin
         'yMjyV+2C+srIXi/lMcF7TYqxxQ0syi2OhlD9RRme12+ESYmMTfIRf' +
         '5zDpDB0vNUs088sEMeLi83dKuHkPPoYMNM7yb8199hV0wRj7Bcqma' +
         'BAq7IophQ+jPFDIPR+h07JoKnoAclNQCzX2FT3ACr+7xZQ==');
+      X1.Coordinate := 179
+      Y1.Coordinate := 84
+      X2.Coordinate := 209
+      Y2.Coordinate := 116
     end;
 
     'mithril':
@@ -226,6 +238,10 @@ begin
         'kuH06mmgHmHB0Wj+SroUWqHuebpLo+EDv6OZtyEOTOaNuYNGtl3Ta' +
         'PEVpyCN61Gp59wiR/3X0/pae5L9K7xdf5nc9QvdEEq6Ah/eTkPrT0' +
         'AVXUj6Z');
+      X1.Coordinate := 179
+      Y1.Coordinate := 133
+      X2.Coordinate := 205
+      Y2.Coordinate := 165
     end;
 
     'iron':
@@ -234,6 +250,10 @@ begin
       Bur.BarBMP := BitmapFromString(30, 13, 'meJzVkTEOwDAIA3mB///bpuqADg' +
         'uhLgy5CQxxBEi38oAl8/hYcs6YgepcJrL6xzl5RU6UqRlSn50DsMo' +
         'G26G1Dc5ttXVu2y515r3mr5N5/3zIe2WqSlQoWo82OfYYU/E=');
+      X1.Coordinate := 126
+      Y1.Coordinate := 85
+      X2.Coordinate := 159
+      Y2.Coordinate := 117
     end;
 
     'steel':
@@ -243,6 +263,10 @@ begin
         'KT7SKnBtmAau9nY9xY54TUfLGIoT1g64v8ywJ+K6v5vlK8nqY+6lQ' +
         'Fua/nd7JxQdm34iG5bArfAnilbGGSV/EAnvfb2FnUKy83kNfNj6FS' +
         'Sj7mCdDBwU0=');
+      X1.Coordinate := 30
+      Y1.Coordinate := 135
+      X2.Coordinate := 56
+      Y2.Coordinate := 165
     end;
 
     'bronze':
@@ -252,6 +276,10 @@ begin
         'YiwnowNyGMY2zEH85estZkO7NQJk3qY1qhnhyQml15AjEmmVysDoh' +
         'MGpbKEwi9NMqPQwhpY7N+HaEmECkpgR3E1+TUHcTwn5mQhpxabvWu' +
         'SdXoIGYraSLP+NYEYyB43hi8/Lhm0jRwA/lIDjScQZM=');
+      X1.Coordinate := 26
+      Y1.Coordinate := 83
+      X2.Coordinate := 60
+      Y2.Coordinate := 118
     end;
   end;
 end;
