@@ -16,7 +16,7 @@ end;
 
 var
   CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y, StartEXP: integer;
-  BronzeBMP, IronBMP, SilverBMP, GoldBMP, SteelBMP, MithrilBMP, AddyBMP, RuneBMP: Integer; 
+  BronzeBMP, IronBMP, SilverBMP, GoldBMP, SteelBMP, MithrilBMP, AddyBMP, RuneBMP: Integer;
   ToFurnace, ToBank: TPointArray;
   Ore, Bar, Bur, X1, Y1, X2, Y2: TOreInfo;
   aFound: Extended;
@@ -166,7 +166,7 @@ Procedure HumanMouseBox(X1, Y1, X2, Y2: Integer);
       GaussBox(FX,FY,X1,Y1,X2,Y2);
       HumanMMouse(FX,FY,0,0)
     End;
-                
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -351,7 +351,7 @@ procedure FR33DTMS;
 begin
   FreeDTMS([TinOreDTM, CopperOreDTM, IronOreDTM, CoalDTM, Ore.OreDTM]);
   FreeBitmap(BronzeBMP) FreeBitMap(IronBMP) FreeBitMap(SilverBMP) FreeBitMap(GoldBMP) FreeBitMap(SteelBMP)
-  FreeBitmap(MithrilBMP) FreeBitMap(AddyBMP) FreeBitMap(RuneBMP); 
+  FreeBitmap(MithrilBMP) FreeBitMap(AddyBMP) FreeBitMap(RuneBMP);
 end;
 
 procedure WalkToFurnace;
@@ -688,19 +688,56 @@ begin
     end;
 end;
 
+procedure AntiBan;
+begin
+  if(not(LoggedIn))then
+  exit;
+  FindNormalRandoms;
+  case Random(100) of
+  0..20:
+    begin
+      WriteLn('AntiBan Is Being Performed');
+      HoverSkill('Smithing', false);
+      Wait(1500 + Random(1000));
+      GameTab(Tab_Inv);
+    end;
+  21..80:
+    begin
+      WriteLn('AFK')
+      Wait(1000 + Random(5000));
+    end;
+  81..100:
+    begin
+      WriteLn('Looking Around');
+      GameTab(Tab_Stats);
+      Wait(400 + Random(8000));
+      GameTab(Tab_Inv);
+    end;
+  end;
+end;
+
+function Failsafe(Reason: String):Boolean;
+begin
+  LogOut;
+  Wait(50)
+  Writeln(Reason)
+  Disguise(Reason)
+  TerminateScript;
+  Result := True;
+end;
 
 procedure SmeltThem;
 var
   JustInCase, x, y:integer;
 begin
-  if CraftingScreen then
+  if SmeltingScreen then
   begin
     MarkTime(JustInCase)
 
     if not FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15) then
     begin
     repeat
-      HumanMouseBox(X1.Coordinate, Y1.Coordinate, X2.Coordinate, Y2.Coordinate)
+      HumanMMouse(92, 150, 4, 4)
       Fastclick(True);
       Wait(500 + Random(750));
       if TimeFromMark(JustInCase) > 5000 then Failsafe('Did not Find my Bitmap');
@@ -708,17 +745,17 @@ begin
     end;
 
     repeat
-      HumanMousebox(226, 305, 482, 323);  // Clicks on the Smelt Grid
+      HumanMousebox(226, 305, 482, 323);  // To click on the right ore.
       FastClick(True);
       Wait(1200)
-    until(not FindBitmapToleranceIn((Bur.BarBMP, X, Y, 273, 44, 370, 90, 15));
+    until(not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15)));
 
     repeat
-      AntiBan
+      AntiBan;
       Wait(2000 + Random(1500));
     until( not FindDTMRotated(Ore.OreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound))
   end;
-end;      
+end;
 
 begin
   ClearDebug;
@@ -741,7 +778,7 @@ begin
   Wait(4000 + Random(400));
   StartEXP := GetXPBarTotal;
   FindNormalRandoms;
-  repeat}
+  repeat
   until(False)
-  AddOnTerminate('FR33DTMS');}
+  AddOnTerminate('FR33DTMS');
 end.
