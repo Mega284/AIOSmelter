@@ -420,6 +420,34 @@ begin
   end;
 end;
 
+procedure Proggy;
+var
+  CurrentEXP, XPH, XP, TotalEXP: integer;
+begin
+  if (not(LoggedIn)) then
+  begin
+    Exit;
+  end;
+
+  CurrentEXP := GetXPBarTotal;
+  XPH := round((CurrentEXP - StartEXP) / (GetTimeRunning / 3600000.0));
+  XP := (CurrentEXP - StartEXP);
+
+  ClearDebug;
+  Writeln('################# AIO Smelter ###############');
+  Writeln('|= Player : ' + Players[CurrentPlayer].Nick);
+  Writeln('|= Time Running : ' + TimeRunning);
+  Writeln('|= EXP Gained : ' + IntToStr(TotalEXP));
+  Writeln('#############################################');
+
+  Smart_ClearCanvas;
+  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'AIO Smelter', clWhite);
+  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clWhite);
+  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clWhite);
+  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clWhite);
+  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clWhite);
+end;
+
 begin
   ClearDebug;
   {$IFDEF SIMBAMAJOR980}
