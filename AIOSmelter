@@ -37,6 +37,138 @@ begin
     end;
 end;
 
+
+//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
+//
+procedure SuperWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: extended);
+var
+  veloX,veloY,windX,windY,veloMag,dist,randomDist,lastDist,step: extended;
+  lastX,lastY,MSP,W: integer;
+  sqrt2,sqrt3,sqrt5: extended;
+begin
+  MSP  := MouseSpeed;
+  sqrt2:= sqrt(2);
+  sqrt3:= sqrt(3);
+  sqrt5:= sqrt(5);
+  while hypot(xs - xe, ys - ye) > 1 do
+  begin
+    dist:= hypot(xs - xe, ys - ye);
+    wind:= minE(wind, dist);
+    if dist >= targetArea then
+    begin
+      windX:= windX / sqrt3 + (random(round(wind) * 2 + 1) - wind) / sqrt5;
+      windY:= windY / sqrt3 + (random(round(wind) * 2 + 1) - wind) / sqrt5;
+    end else
+    begin
+      windX:= windX / sqrt2;
+      windY:= windY / sqrt2;
+      if (maxStep < 3) then
+      begin
+        maxStep:= random(3) + 3.0;
+      end else
+      begin
+        maxStep:= maxStep / sqrt5;
+      end;
+    end;
+    veloX:= veloX + windX;
+    veloY:= veloY + windY;
+    veloX:= veloX + gravity * (xe - xs) / dist;
+    veloY:= veloY + gravity * (ye - ys) / dist;
+    if hypot(veloX, veloY) > maxStep then
+    begin
+      randomDist:= maxStep / 2.0 + random(round(maxStep) div 2);
+      veloMag:= sqrt(veloX * veloX + veloY * veloY);
+      veloX:= (veloX / veloMag) * randomDist;
+      veloY:= (veloY / veloMag) * randomDist;
+    end;
+    lastX:= Round(xs);
+    lastY:= Round(ys);
+    xs:= xs + veloX;
+    ys:= ys + veloY;
+
+    case Random(50) of
+      1..25: W := (MSP + (Random((MSP/4))));
+      26..50: W := (MSP - (RandomRange((MSP/2), MSP-1)));
+    end;
+    if (W < 1) then
+      W := 1;
+
+    if (lastX <> Round(xs)) or (lastY <> Round(ys)) then
+      MoveMouse(Round(xs), Round(ys));
+
+    step:= hypot(xs - lastX, ys - lastY);
+    //W := round((maxWait - minWait) * (step / maxStep) + minWait);
+    wait(W);
+    lastdist:= dist;
+  end;
+
+  if (Round(xe) <> Round(xs)) or (Round(ye) <> Round(ys)) then
+    MoveMouse(Round(xe), Round(ye));
+
+  MouseSpeed := MSP;
+end;
+
+Procedure HumanMMouse(eX, eY, ranX, ranY: Integer);
+var
+  randSpeed: extended;
+  X,Y,X2,Y2,j,Dist,MP: integer;
+begin
+  j := MouseSpeed;
+  GetMousePos(X, Y);
+  Dist := Distance(X, Y, eX, eY);
+  MP := Round(Dist/150);
+  if MP < 0 then
+    MP := 1;
+
+  randSpeed := (random(MouseSpeed) / 2.0 + MouseSpeed) / 10.0;
+  X2 := RandomRange(eX-(j*MP), eX+(j*MP));
+  Y2 := RandomRange(eY-(j*MP), eY+(j*MP));
+  SuperWindMouse(X, Y, X2, Y2, 11, 8, 10.0 / randSpeed, 12.0 / randSpeed, 10.0 * randSpeed, 10.0 * randSpeed);
+  GetMousePos(X, Y);
+  HumanMMouse(eX, eY, ranX, ranY);
+  MouseSpeed := j;
+end;
+
+{*******************************************************************************
+procedure FastClick(button: Integer);
+By: Flight
+Description: Quickly click the mouse.
+*******************************************************************************}
+procedure FastClick(button: variant);
+var
+  x, y: integer;
+  ibutton: Integer;
+begin
+  if VariantIsBoolean(button) then
+  begin
+    if (button) then
+      iButton := mouse_left
+    else
+      iButton := mouse_right;
+  end else
+    iButton := button;
+
+  if (iButton = mouse_move) then Exit;
+  GetMousePos(x, y);
+  HoldMouse(x, y, iButton);
+
+  Wait(RandomRange(60, 150));
+
+  GetMousePos(x, y);
+  ReleaseMouse(x, y, iButton);
+end;
+
+Procedure HumanMouseBox(X1, Y1, X2, Y2: Integer);
+    Var
+      FX, FY: Integer;
+    Begin
+      GaussBox(FX,FY,X1,Y1,X2,Y2);
+      HumanMMouse(FX,FY,0,0)
+    End;
+                
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 procedure LoadOreInfo;
 begin
   case lowercase(WHATTOSMELT) of
@@ -420,33 +552,81 @@ begin
   end;
 end;
 
-procedure Proggy;
+
+
+
+// Sjoe's part
+
+
+function SmeltingScreen: Boolean;    // Creds To Ashaman baby
 var
-  CurrentEXP, XPH, XP, TotalEXP: integer;
+  CTS: Integer;
 begin
-  if (not(LoggedIn)) then
+  CTS := GetColorToleranceSpeed;
+  ColorToleranceSpeed(2);
+
+  SetColorSpeed2Modifiers(0.02, 0.36);
+
+  If CountColorTolerance(8280838,398,361-50,480,369-50,25) > 500 Then
+    Result:=True;
+
+  ColorToleranceSpeed(CTS);
+  SetColorSpeed2Modifiers(0.2, 0.2);
+
+end;
+
+
+function FindFurnace:Boolean;
+var
+  FurnToolong, x, y, i, H, CTS :Integer;
+  TPA: TpointArray;
+  ATPA: T2DPointArray;
+
+begin
+  if Bankscreen then
   begin
+    Result := true;
     Exit;
   end;
 
-  CurrentEXP := GetXPBarTotal;
-  XPH := round((CurrentEXP - StartEXP) / (GetTimeRunning / 3600000.0));
-  XP := (CurrentEXP - StartEXP);
+  Marktime(FurnToolong)
+  CTS := GetToleranceSpeed;
+  ColorToleranceSpeed(2);
+  SetColorSpeed2Modifiers(0.04, 1.05);
 
-  ClearDebug;
-  Writeln('################# AIO Smelter ###############');
-  Writeln('|= Player : ' + Players[CurrentPlayer].Nick);
-  Writeln('|= Time Running : ' + TimeRunning);
-  Writeln('|= EXP Gained : ' + IntToStr(TotalEXP));
-  Writeln('#############################################');
+  if FindColorsTolerance(TPA, 10466246, 0, 150, 276, 340, 16)  then
+    begin
+       SetColorToleranceSpeed(CTS);
+       SetToleranceSpeed2Modifiers(0.02, 0.02);
 
-  Smart_ClearCanvas;
-  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'AIO Smelter', clWhite);
-  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clWhite);
-  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clWhite);
-  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clWhite);
-  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clWhite);
+       SplitTPAExWrap(TPA, 20, 20, ATPA);
+
+       SortATPAFromMidPoint(ATPA, Point(190, 213));
+       H := High(ATPA)
+
+      SMART_DebugATPA(True, ATPA)
+
+       begin
+        for i:=0 to H do
+          begin
+             repeat
+              MiddleTpaEx(ATPA[i], x, y);
+              HumanMMouse(x, y, 5, 5)
+              if WaitUptextMulti(['Smel', 'Furn', 'ace'] , 800) then
+              begin
+                Fastclick(True);
+                if WaitFunc(@SmeltingScreen, 100 , 3000) then
+                begin
+                  Result := True;
+                  Exit
+                end;
+              end;
+            until((TimeFromMark(FurnTooLong) > 25000) or SmeltingScreen)
+          end;
+        end;
+    end;
 end;
+           
 
 begin
   ClearDebug;
