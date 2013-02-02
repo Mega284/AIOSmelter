@@ -15,7 +15,7 @@ type TOreInfo = record
 end;
 
 var
-  CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y: integer;
+  CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y, StartEXP: integer;
   ToFurnace, ToBank: TPointArray;
   Ore, Bar: TOreInfo;
   aFound: Extended;
