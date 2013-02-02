@@ -1,0 +1,447 @@
+program AIOSmelter;
+{$Define Smart8}
+{$I SRL/SRL.Simba}
+{$I SPS/SPS.Simba}
+{$I SRL/SRL/Misc/SmartGraphics.Simba}
+
+const
+  MEMBERS           = True; // Member or not
+  NUMBOFPLAYERS     = 1;
+  STARTPLAYER       = 0;
+  WHATTOSMELT       = 'Bronze'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
+
+type TOreInfo = record
+  OreDTM, BarDTM: Integer;
+end;
+
+var
+  CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y: integer;
+  ToFurnace, ToBank: TPointArray;
+  Ore, Bar: TOreInfo;
+  aFound: Extended;
+
+procedure DeclarePlayers;
+  var i:integer;
+begin
+  NumberOfPlayers(NumbOfPlayers);
+  CurrentPlayer := StartPlayer
+  for i := 0 to NumbOfPlayers-1 do
+
+  With Players[0] do
+    begin
+      Name := ''; //Username.
+      Pass := ''; //Password.
+      Nick := ''; //Nickname
+      Pin  := ''; // Pin
+      Active := True;
+    end;
+end;
+
+procedure LoadOreInfo;
+begin
+  case lowercase(WHATTOSMELT) of
+    'adamant':
+    begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQB2JFINYCYksg/gzEH4H4DxAzMTEw/ATS9p72QNVMKJgVSKJjRiwYDAC4swWq');
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyjfyMgbIoCG+YEkKxbMiANDAAB6WQbQ');
+    end;
+
+    'rune':
+    begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQB2JFINYCYksg/gzEH4H4DxAzMTEw/ATSTgFhQNVMKJgVSKJjRiwYDADA3wXL');
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyjf2sMXIoCG+YEkKxbMiANDAACETQbx');
+    end;
+
+    'gold':
+    begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQA2INIDYDYksg/gzFTEwMDH+A9Bcg3jFJEqiaCQXzA0lWNMyIBYMBAOQXBl8=');
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyh/Xq0YRAAN8wNJViyYEQeGAACiFAdS');
+    end;
+
+    'silver':
+    begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQA2INIDYDYksg/gzFTEwMDH+A9BcgbmnpAqpmQsH8QJIVDTNiwWAAAO8yBo4=');
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyi/oqIWIoCG+YEkKxbMiANDAACzkweO');
+    end;
+
+    'mithril':
+    begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQB2JFINYCYksg/gzEH4H4DxAzMTEw/ATSpqYBQNVMKJgVSKJjRiwYDAC1WAWd');
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyjfyMgbIoCG+YEkKxbMiANDAAB6WQbQ');
+    end;
+
+    'iron':
+    begin
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYHYhsgNgXiz0D8EYh/AjEDE4T/C4jtbWwgAmiYA0iyYsGMODAEAAB9mwbX');
+    end;
+
+    'steel':
+    begin
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyg/NTERIoCG+YEkKxbMiANDAACejgdI');
+    end;
+
+    'bronze':
+    begin
+      Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYHYhsgNgXiz0D8EYh/AjEDE4T/C4ittCUhAmiYH0iyYsGMODAEAABuDgal');
+    end;
+  end;
+end;
+
+function Walking(Color, Tolerance: Integer; SortFrom: tpoint): Boolean;
+var
+  i, x, y, rx, ry: Integer;
+  TPA: TPointArray;
+begin
+  if not LoggedIn then Exit;
+  FindNormalRandoms;
+  FindColorsSpiralTolerance(MMCX, MMCY, TPA, Color, MMX1, MMY1, MMX2, MMY2, Tolerance);
+  SortTPAFrom(TPA, SortFrom);
+
+  for i := 0 to High(TPA) do
+  begin
+    x := TPA[i].x;
+    y := TPA[i].y;
+
+    rx := RandomRange(-6, 6);
+    ry := RandomRange(-6, 6);
+    if (not rs_OnMinimap(x + rx, y + ry)) then
+    Continue;
+
+    Mouse(x + rx, y + ry, 0, 0, true);
+    FFlag(0);
+    Wait(300 + Random(300));
+    Result := True;
+    Break;
+  end;
+end;
+
+function FindBanker(x, y: Integer): Boolean;
+var
+  CTS, I: Integer;
+  TPA: TPointArray;
+  ATPA: Array of TPointArray;
+begin
+  CTS := GetColorToleranceSpeed;
+  ColorToleranceSpeed(2);
+  SetColorSpeed2Modifiers(0.27, 0.98);
+  FindColorsSpiralTolerance(MSCX, MSCY, TPA, 3300962, MSX1, MSY1, MSX2, MSY2, 4);
+  ColorToleranceSpeed(CTS);
+  ATPA := TPAToATPAEx(TPA, 15, 15);
+
+  For I := 0 to High(ATPA) do
+  begin
+    MiddleTPAEx(ATPA[i], x, y);
+    if High(TPA) > 100 then
+    MMouse(x, y, 2, 2);
+    If(IsUpTextMultiCustom(['anker', 'Banker', 'alk'])) then
+    begin
+      Result := True;
+      GetMousePos(x, y);
+      Break;
+    end;
+  end;
+end;
+
+procedure DTMS;
+begin
+  TinOreDTM := DTMFromString('mbQAAAHicY2VgYAhhZGBwAWIfII4G4nggngbEU4F4LhDPh/LTk5OBqplQMD+QZEXDjFgwGAAA2rQGCA==');
+  CopperOreDTM := DTMFromString('mbQAAAHicY2VgYAhhZGDwAeJoII4HYmcgng7Ec4F4PhBPg/K3ppsDVTOhYH4gyYqGGbFgMAAA5mgGMA==');
+  IronOreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQB2JFINYCYksg/gzEH4H4DxAzMTEw/ATSpvLiQNVMKJgVSKJjRiwYDACh0QVO');
+  CoalDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQB2JFINYCYksg/gzEH4H4DxAzMTEw/ATSamqyQNVMKJgVSKJjRiwYDAChPAVM');
+end;
+
+procedure FR33DTMS;
+begin
+  FreeDTMS([TinOreDTM, CopperOreDTM, IronOreDTM, CoalDTM, Ore.OreDTM]);
+end;
+
+procedure WalkToFurnace;
+begin
+  ToFurnace := [Point(4884,3926), Point(4901,3905), Point(4900,3872), Point(4906,3856), Point(4896,3842)];
+  SPS_WalkPath(ToFurnace);
+end;
+
+procedure WalkToBank;
+begin
+  ToBank := [Point(4896,3842), Point(4906,3856), Point(4900,3872), Point(4901,3905), Point(4884,3926)];
+  SPS_WalkPath(ToBank);
+end;
+
+procedure Bank;
+begin
+  if (not(IsMoving)) then
+  begin
+    if FindBanker(x, y) then
+    begin
+      ClickMouse2(False);
+      WaitOption('Bank Banker', 400);
+    end;
+
+    repeat
+      Wait(100 + Random(100));
+    until(BankScreen or PinScreen)
+    Writeln('Bank is open.');
+  end;
+
+  if (BankScreen) or (PinScreen) then
+  begin
+    if (PinScreen) then
+      repeat
+        InPin(Players[0].Pin);
+      until (BankScreen);
+
+    if BankScreen then
+    begin
+      DepositAll;
+      begin
+        case lowercase(WHATTOSMELT) of
+          'iron':
+          begin
+            if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+            begin
+              Writeln('Found ore.');
+              MMouse(x, y, 2, 2);
+              ClickMouse2(mouse_right);
+              WaitOption('ll', 300);
+              CloseBank;
+            end;
+          end;
+
+          'bronze':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(CopperOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                MMouse(x, y, 0, 0);
+                if IsUpText('opper') then
+                begin
+                  ClickMouse2(False);
+                  if (not(ChooseOption('14'))) then
+                  begin
+                    Chooseoption('X');
+                    TypeSendEx('14', True);
+                  end else ChooseOption('14');
+                end;
+              end;
+            end;
+
+            if FindDTMRotated(TinOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+            begin
+              MMouse(x, y, 0, 0);
+              if IsUpText('in') then
+              begin
+                ClickMouse2(False);
+                if (not(ChooseOption('14'))) then
+                begin
+                  Chooseoption('X');
+                  TypeSendEx('14', True);
+                end else ChooseOption('14');
+              end;
+            end;
+
+            CloseBank;
+          end;
+
+          'steel':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                MMouse(x, y, 0, 0);
+                if IsUpText('ron') then
+                begin
+                  ClickMouse2(False);
+                  if (not(ChooseOption('9'))) then
+                  begin
+                    Chooseoption('X');
+                    TypeSendEx('9', True);
+                  end else ChooseOption('9');
+                end;
+              end;
+            end;
+
+            if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+            begin
+              MMouse(x, y, 0, 0);
+              if IsUpText('oal') then
+              begin
+                ClickMouse2(False);
+                if (not(ChooseOption('18'))) then
+                begin
+                  Chooseoption('X');
+                  TypeSendEx('18', True);
+                end else ChooseOption('18');
+              end;
+            end;
+
+            CloseBank;
+          end;
+
+          'mithril':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                MMouse(x, y, 0, 0);
+                if IsUpText('ithril') then
+                begin
+                  ClickMouse2(False);
+                  if (not(ChooseOption('5'))) then
+                  begin
+                    Chooseoption('X');
+                    TypeSendEx('5', True);
+                  end else ChooseOption('5');
+                end;
+              end;
+            end;
+
+            if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+            begin
+              MMouse(x, y, 0, 0);
+              if IsUpText('oal') then
+              begin
+                ClickMouse2(False);
+                if (not(ChooseOption('20'))) then
+                begin
+                  Chooseoption('X');
+                  TypeSendEx('20', True);
+                end else ChooseOption('20');
+              end;
+            end;
+
+            CloseBank;
+          end;
+
+          'gold':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                Mouse(x, y, 1, 1, False);
+                WaitOption('ll', 300);
+              end;
+            end;
+
+            CloseBank;
+          end;
+
+          'silver':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                Mouse(x, y, 1, 1, False);
+                WaitOption('ll', 300);
+              end;
+            end;
+
+            CloseBank;
+          end;
+
+          'rune':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                MMouse(x, y, 0, 0);
+                if IsUpText('une') then
+                begin
+                  ClickMouse2(False);
+                  if (not(ChooseOption('3'))) then
+                  begin
+                    Chooseoption('X');
+                    TypeSendEx('3', True);
+                  end else ChooseOption('3');
+                end;
+              end;
+            end;
+
+            if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+            begin
+              MMouse(x, y, 0, 0);
+              if IsUpText('oal') then
+              begin
+                ClickMouse2(False);
+                if (not(ChooseOption('24'))) then
+                begin
+                  Chooseoption('X');
+                  TypeSendEx('24', True);
+                end else ChooseOption('24');
+              end;
+            end;
+
+            CloseBank;
+          end;
+
+          'addy':
+          begin
+            if BankScreen then
+            begin
+              if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+              begin
+                MMouse(x, y, 0, 0);
+                if IsUpText('damant') then
+                begin
+                  ClickMouse2(False);
+                  if (not(ChooseOption('4'))) then
+                  begin
+                    Chooseoption('X');
+                    TypeSendEx('4', True);
+                  end else ChooseOption('4');
+                end;
+              end;
+            end;
+
+            if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+            begin
+              MMouse(x, y, 0, 0);
+              if IsUpText('oal') then
+              begin
+                ClickMouse2(False);
+                if (not(ChooseOption('24'))) then
+                begin
+                  Chooseoption('X');
+                  TypeSendEx('24', True);
+                end else ChooseOption('24');
+              end;
+            end;
+
+            CloseBank;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+begin
+  ClearDebug;
+  {$IFDEF SIMBAMAJOR980}
+    SMART_SERVER := 24;
+    SMART_MEMBERS := MEMBERS;
+    SMART_SIGNED := TRUE;
+    SMART_SUPERDETAIL := FALSE;
+  {$ELSE}
+    SMART_FIXSPEED := TRUE;
+  {$ENDIF}
+  ActivateClient;
+  SetupSRL;
+  LoadOreInfo;
+  SRL_SixHourFix := True;
+  DTMS;
+  DeclarePlayers;
+  if not (LoggedIn) then
+  LoginPlayer;
+  Wait(4000 + Random(400));
+  StartEXP := GetXPBarTotal;
+  FindNormalRandoms;
+  repeat}
+  until(False)
+  AddOnTerminate('FR33DTMS');}
+end.
