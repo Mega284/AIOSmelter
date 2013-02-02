@@ -11,14 +11,14 @@ const
   WHATTOSMELT       = 'Bronze'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
 
 type TOreInfo = record
-  OreDTM, BarDTM: Integer;
+  OreDTM, BarDTM, BarBMP, Coordinate: Integer;
 end;
 
 var
   CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y, StartEXP: integer;
   BronzeBMP, IronBMP, SilverBMP, GoldBMP, SteelBMP, MithrilBMP, AddyBMP, RuneBMP: Integer; 
   ToFurnace, ToBank: TPointArray;
-  Ore, Bar: TOreInfo;
+  Ore, Bar, Bur, X1, Y1, X2, Y2: TOreInfo;
   aFound: Extended;
 
 procedure DeclarePlayers;
@@ -181,6 +181,10 @@ begin
         'SwDpZbUkk01P0fWDe+t40BMzuRK2xP5C7ApGMuiTiMr2Sic/OipAF' +
         '6JZ38UydaQ8nES7Hi3tDRh2yrW2vYTrb+SMWeE63Yyd3UNdX7t32+' +
         'kitqr+fXfp7m5s/En4ZK9jDp08BEL6qR69E=');
+      X1.Coordinate :=
+      Y1.Coordinate :=
+      X2.Coordinate :=
+      Y2.Coordinate := 
     end;
 
     'rune':
