@@ -16,6 +16,7 @@ end;
 
 var
   CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y, StartEXP: integer;
+  BronzeBMP, IronBMP, SilverBMP, GoldBMP, SteelBMP, MithrilBMP, AddyBMP, RuneBMP: Integer; 
   ToFurnace, ToBank: TPointArray;
   Ore, Bar: TOreInfo;
   aFound: Extended;
@@ -317,6 +318,8 @@ end;
 procedure FR33DTMS;
 begin
   FreeDTMS([TinOreDTM, CopperOreDTM, IronOreDTM, CoalDTM, Ore.OreDTM]);
+  FreeBitmap(BronzeBMP) FreeBitMap(IronBMP) FreeBitMap(SilverBMP) FreeBitMap(GoldBMP) FreeBitMap(SteelBMP)
+  FreeBitmap(MithrilBMP) FreeBitMap(AddyBMP) FreeBitMap(RuneBMP); 
 end;
 
 procedure WalkToFurnace;
@@ -652,7 +655,38 @@ begin
         end;
     end;
 end;
-           
+
+
+procedure SmeltThem;
+var
+  JustInCase, x, y:integer;
+begin
+  if CraftingScreen then
+  begin
+    MarkTime(JustInCase)
+
+    if not FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15) then
+    begin
+    repeat
+      HumanMMouse(92, 150, 4, 4)
+      Fastclick(True);
+      Wait(500 + Random(750));
+      if TimeFromMark(JustInCase) > 5000 then Failsafe('Did not Find my Bitmap');
+    until(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15))
+    end;
+
+    repeat
+    //  HumanMousebox(226, 305, 482, 323);  // To click on the right ore.
+     // FastClick(True);
+    //  Wait(1200)
+    until(not FindBitmapToleranceIn((Bur.BarBMP, X, Y, 273, 44, 370, 90, 15));
+
+    repeat
+      AntiBan
+      Wait(2000 + Random(1500));
+    until( not FindDTMRotated(Ore.OreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound))
+  end;
+end;      
 
 begin
   ClearDebug;
