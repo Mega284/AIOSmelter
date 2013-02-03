@@ -31,8 +31,8 @@ begin
 
   With Players[0] do
     begin
-      Name := 'sikhking4@hotmail.com'; //Username.
-      Pass := 'getmoney'; //Password.
+      Name := ''; //Username.
+      Pass := ''; //Password.
       Nick := 'Gucci'; //Nickname
       Pin  := ''; // Pin
       Active := True;
