@@ -782,3 +782,51 @@ begin
   until(False)
   AddOnTerminate('FR33DTMS');
 end.
+
+
+function FindBankbooth:Boolean;
+var
+  BankingToolong, x, y, i, H, CTS :Integer;
+  TPA: TpointArray;
+  ATPA: T2DPointArray;
+
+begin
+  if Bankscreen then
+  begin
+    Result := true;
+    Exit;
+  end;
+
+  Marktime(BankingToolong)
+  CTS := GetToleranceSpeed;
+  ColorToleranceSpeed(2);
+  SetColorSpeed2Modifiers(0.02, 0.64);
+
+  if FindColorsTolerance(TPA, 9415114, MSX1, MSY1, 515, 196, 7)  then
+    begin
+
+       SetColorToleranceSpeed(CTS);
+       SetToleranceSpeed2Modifiers(0.02, 0.02);
+
+       SplitTPAExWrap(TPA, 15, 12, ATPA);
+       SortATPAFromMidPoint(ATPA, Point(MSCX, MSCY));
+       H := High(ATPA)
+       begin
+        for i:=0 to H do
+          begin
+              MiddleTpaEx(ATPA[i], x, y);
+              HumanMMouse(x, y, 2, 2)
+              if WaitUptextMulti(['boo','Ban','ank', 'nk B'] , 800) then
+              begin
+                Fastclick(True);
+                if WaitFunc(@Bankscreen, 100, 5000) then
+                  begin
+                    Result :=True;
+                    Exit;
+                  end;
+              end;
+            if TimeFromMark(BankingTooLong) > 25000 then FailSafe('Didnt find the bank')
+          end;
+        end;
+    end;
+end; 
