@@ -31,16 +31,16 @@ begin
 
   With Players[0] do
     begin
-      Name := ''; //Username.
-      Pass := ''; //Password.
-      Nick := ''; //Nickname
+      Name := 'sikhking4@hotmail.com'; //Username.
+      Pass := 'getmoney'; //Password.
+      Nick := 'Gucci'; //Nickname
       Pin  := ''; // Pin
       Active := True;
     end;
 end;
 
 
-//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
+{//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
 procedure SuperWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: extended);
 var
   veloX,veloY,windX,windY,veloMag,dist,randomDist,lastDist,step: extended;
@@ -128,7 +128,7 @@ begin
   GetMousePos(X, Y);
   HumanMMouse(eX, eY, ranX, ranY);
   MouseSpeed := j;
-end;
+end;  }
 
 {*******************************************************************************
 procedure FastClick(button: Integer);
@@ -164,7 +164,7 @@ var
   FX, FY: Integer;
 begin
   GaussBox(FX,FY,X1,Y1,X2,Y2);
-  HumanMMouse(FX,FY,0,0);
+  MMouse(FX,FY,0,0);
 end;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -320,6 +320,7 @@ var
   TPA: TPointArray;
   ATPA: Array of TPointArray;
 begin
+  Smart_ClearCanvas;
   CTS := GetColorToleranceSpeed;
   ColorToleranceSpeed(2);
   SetColorSpeed2Modifiers(0.09, 1.45);
@@ -332,7 +333,7 @@ begin
     SMART_DebugATPA(True, ATPA);
     MiddleTPAEx(ATPA[i], x, y);
     if High(TPA) > 100 then
-    HumanMMouse(x, y, 2, 2);
+    MMouse(x, y, 2, 2);
     If(IsUpTextMultiCustom(['anker', 'Banker', 'alk'])) then
     begin
       Result := True;
@@ -359,22 +360,35 @@ end;
 
 procedure WalkToFurnace;
 begin
-  ToFurnace := [Point(4884,3926), Point(4901,3905), Point(4900,3872), Point(4906,3856), Point(4896,3842)];
+  Status('Walking To Furnace.');
+  ToFurnace := [Point(4884, 3926), Point(4901, 3905), Point(4900, 3872), Point(4906, 3856), Point(4896, 3842)];
   SPS_WalkPath(ToFurnace);
   SPS_WalkToPos(Point(4896, 3842));
 end;
 
 procedure WalkToBank;
 begin
-  ToBank := [Point(4896,3842), Point(4906,3856), Point(4900,3872), Point(4901,3905), Point(4884,3926)];
+  Status('Walking To Bank.');
+  ToBank := [Point(4896, 3842), Point(4906, 3856), Point(4900, 3872), Point(4901, 3905), Point(4884, 3926)];
   SPS_WalkPath(ToBank);
   SPS_WalkToPos(Point(4884, 3926));
 end;
 
+function Failsafe(Reason: String):Boolean;
+begin
+  LogOut;
+  Wait(50)
+  Writeln(Reason)
+  Disguise(Reason)
+  TerminateScript;
+  Result := True;
+end;
+
 procedure Proggy;
 var
-  CurrentEXP, XP, XPH: integer;
+  CurrentEXP, XP, XPH, Bars: integer;
 begin
+  Status('Reporting Progress.');
   if (not(LoggedIn)) then
   begin
     Exit;
@@ -385,19 +399,69 @@ begin
   XP := (CurrentEXP - StartEXP);
 
   ClearDebug;
-  Writeln('############# AIO SMELTER ###########');
+  Writeln('############### AIO SMELTER ################');
   Writeln('|= Player : ' + Players[CurrentPlayer].Nick);
   Writeln('|= Time Running : ' + TimeRunning);
   Writeln('|= Smelting : ' + WHATTOSMELT);
+  Writeln('|= Bars Made : ' + IntToStr(Bars));
   Writeln('|= EXP Gained : ' + IntToStr(XP));
-  Writeln('#####################################');
+  Writeln('############################################');
 
   Smart_ClearCanvas;
-  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'Guccis Safe Cracker', clWhite);
-  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clWhite);
-  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clWhite);
-  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clWhite);
-  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clWhite);
+  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'AIO SMELTER', clBlue);
+  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clBlue);
+  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clBlue);
+  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'Smelting:' + WHATTOSMELT, clBlue);
+  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'Bars Made:' + IntToStr(Bars), clBlue);
+  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clBlue);
+  SMART_DrawTextEx(False, 8, 156, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clBlue);
+end;
+
+function FindBankBooth:Boolean;
+var
+  BankingToolong, x, y, i, H, CTS :Integer;
+  TPA: TpointArray;
+  ATPA: T2DPointArray;
+
+begin
+  if Bankscreen then
+  begin
+    Result := true;
+    Exit;
+  end;
+
+  Marktime(BankingToolong)
+  CTS := GetToleranceSpeed;
+  ColorToleranceSpeed(2);
+  SetColorSpeed2Modifiers(0.02, 0.64);
+
+  if FindColorsTolerance(TPA, 9415114, MSX1, MSY1, 515, 196, 7)  then
+  begin
+
+    SetColorToleranceSpeed(CTS);
+    SetToleranceSpeed2Modifiers(0.02, 0.02);
+
+    SplitTPAExWrap(TPA, 15, 12, ATPA);
+    SortATPAFromMidPoint(ATPA, Point(MSCX, MSCY));
+    H := High(ATPA)
+    begin
+      for i:=0 to H do
+      begin
+        MiddleTpaEx(ATPA[i], x, y);
+        MMouse(x, y, 2, 2)
+        if WaitUptextMulti(['boo','Ban','ank', 'nk B'] , 800) then
+        begin
+          Fastclick(True);
+          if WaitFunc(@Bankscreen, 100, 5000) then
+          begin
+            Result :=True;
+            Exit;
+          end;
+        end;
+        if TimeFromMark(BankingTooLong) > 25000 then FailSafe('Didnt find the bank')
+      end;
+    end;
+  end;
 end;
 
 procedure Bank;
@@ -405,7 +469,7 @@ begin
   if (not(IsMoving)) then
   begin
     repeat
-      if FindBanker(x, y) then
+      if FindBanker(x, y) or FindBankBooth then
       begin
         ClickMouse2(False);
         WaitOption('Bank Banker', 400);
@@ -413,7 +477,7 @@ begin
 
       while IsMoving do
       Wait(200);
-      Writeln('Bank is open.');
+      Status('Opened Bank Successfully.');
     until(BankScreen or PinScreen)
   end;
 
@@ -434,7 +498,7 @@ begin
             if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
               Writeln('Found ore.');
-              HumanMMouse(x, y, 2, 2);
+              MMouse(x, y, 2, 2);
               ClickMouse2(mouse_right);
               WaitOption('ll', 300);
               CloseBank;
@@ -447,7 +511,7 @@ begin
             begin
               if FindDTMRotated(CopperOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                HumanMMouse(x, y, 0, 0);
+                MMouse(x, y, 0, 0);
                 if IsUpText('opper') then
                 begin
                   ClickMouse2(False);
@@ -462,7 +526,7 @@ begin
 
             if FindDTMRotated(TinOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              HumanMMouse(x, y, 0, 0);
+              MMouse(x, y, 0, 0);
               if IsUpText('in') then
               begin
                 ClickMouse2(False);
@@ -483,7 +547,7 @@ begin
             begin
               if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                HumanMMouse(x, y, 0, 0);
+                MMouse(x, y, 0, 0);
                 if IsUpText('ron') then
                 begin
                   ClickMouse2(False);
@@ -498,7 +562,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              HumanMMouse(x, y, 0, 0);
+              MMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -519,7 +583,7 @@ begin
             begin
               if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                HumanMMouse(x, y, 0, 0);
+                MMouse(x, y, 0, 0);
                 if IsUpText('ithril') then
                 begin
                   ClickMouse2(False);
@@ -534,7 +598,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              HumanMMouse(x, y, 0, 0);
+              MMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -583,7 +647,7 @@ begin
             begin
               if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                HumanMMouse(x, y, 0, 0);
+                MMouse(x, y, 0, 0);
                 if IsUpText('une') then
                 begin
                   ClickMouse2(False);
@@ -598,7 +662,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              HumanMMouse(x, y, 0, 0);
+              MMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -619,7 +683,7 @@ begin
             begin
               if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                HumanMMouse(x, y, 0, 0);
+                MMouse(x, y, 0, 0);
                 if IsUpText('damant') then
                 begin
                   ClickMouse2(False);
@@ -634,7 +698,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              HumanMMouse(x, y, 0, 0);
+              MMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -706,7 +770,7 @@ begin
           begin
              repeat
               MiddleTpaEx(ATPA[i], x, y);
-              HumanMMouse(x, y, 5, 5);
+              MMouse(x, y, 5, 5);
               if WaitUptextMulti(['Smel', 'Furn', 'ace'] , 800) then
               begin
                 Fastclick(True);
@@ -724,25 +788,23 @@ end;
 
 procedure AntiBan;
 begin
+  Status('AntiBan');
   if(not(LoggedIn))then
   Exit;
   FindNormalRandoms;
   case Random(100) of
   0..20:
     begin
-      WriteLn('AntiBan Is Being Performed');
       HoverSkill('Smithing', false);
       Wait(1500 + Random(1000));
       GameTab(Tab_Inv);
     end;
   21..80:
     begin
-      WriteLn('AFK')
       Wait(1000 + Random(5000));
     end;
   81..100:
     begin
-      WriteLn('Looking Around');
       GameTab(Tab_Stats);
       Wait(400 + Random(8000));
       GameTab(Tab_Inv);
@@ -750,28 +812,19 @@ begin
   end;
 end;
 
-function Failsafe(Reason: String):Boolean;
-begin
-  LogOut;
-  Wait(50)
-  Writeln(Reason)
-  Disguise(Reason)
-  TerminateScript;
-  Result := True;
-end;
-
 procedure SmeltThem;
 var
-  JustInCase, x, y:integer;
+  JustInCase, x, y, g:integer;
 begin
   if SmeltingScreen then
   begin
     MarkTime(JustInCase)
+    Status('Smelting Bars.');
 
     if (not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15))) then
     begin
     repeat
-      HumanMMouse(92, 150, 4, 4);
+      MMouse(92, 150, 4, 4);
       Fastclick(True);
       Wait(500 + Random(750));
       if TimeFromMark(JustInCase) > 5000 then Failsafe('Did not Find my Bitmap');
@@ -785,60 +838,25 @@ begin
     until(not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15)));
 
     repeat
-      if TimeFromMark(JustInCase) > 12000 then
+      MarkTime(g);
+      if TimeFromMark(g) > 12000 then
       begin
         AntiBan;
       end;
+      Proggy;
       Wait(2000 + Random(1500));
     until(not(FindDTMRotated(Ore.OreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound)))
   end;
 end;
 
-function FindBankbooth:Boolean;
+procedure Rest;
 var
-  BankingToolong, x, y, i, H, CTS :Integer;
-  TPA: TpointArray;
-  ATPA: T2DPointArray;
-
+  S: String;
 begin
-  if Bankscreen then
-  begin
-    Result := true;
-    Exit;
-  end;
-
-  Marktime(BankingToolong)
-  CTS := GetToleranceSpeed;
-  ColorToleranceSpeed(2);
-  SetColorSpeed2Modifiers(0.02, 0.64);
-
-  if FindColorsTolerance(TPA, 9415114, MSX1, MSY1, 515, 196, 7)  then
-    begin
-
-       SetColorToleranceSpeed(CTS);
-       SetToleranceSpeed2Modifiers(0.02, 0.02);
-
-       SplitTPAExWrap(TPA, 15, 12, ATPA);
-       SortATPAFromMidPoint(ATPA, Point(MSCX, MSCY));
-       H := High(ATPA)
-       begin
-        for i:=0 to H do
-          begin
-              MiddleTpaEx(ATPA[i], x, y);
-              HumanMMouse(x, y, 2, 2)
-              if WaitUptextMulti(['boo','Ban','ank', 'nk B'] , 800) then
-              begin
-                Fastclick(True);
-                if WaitFunc(@Bankscreen, 100, 5000) then
-                  begin
-                    Result :=True;
-                    Exit;
-                  end;
-              end;
-            if TimeFromMark(BankingTooLong) > 25000 then FailSafe('Didnt find the bank')
-          end;
-        end;
-    end;
+  if not (LoggedIn) then
+  Exit;
+  if (GetMMLevels('Run', S) <= 25) then
+  RestUntil(RandomRange(75,100))
 end;
 
 begin
@@ -867,9 +885,14 @@ begin
   FindNormalRandoms;
   ClickNorth(SRL_ANGLE_HIGH);
   repeat
+    if (not(LoggedIn)) then
+    begin
+      LoginPlayer;
+    end;
     if (not(InvFull)) then
     begin
       WalkToBank;
+      Rest;
       repeat
         Bank;
       until(InvCount > 25)
@@ -878,6 +901,7 @@ begin
     begin
       WalkToFurnace;
       while IsMoving do
+      IncEx(Bars, CountItems('dtm', Bar.BarDTM, []));
       Wait(200);
       FindFurnace;
       SmeltThem;
