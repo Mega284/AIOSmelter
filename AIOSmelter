@@ -40,7 +40,7 @@ begin
 end;
 
 
-{//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
+//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
 procedure SuperWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: extended);
 var
   veloX,veloY,windX,windY,veloMag,dist,randomDist,lastDist,step: extended;
@@ -128,7 +128,7 @@ begin
   GetMousePos(X, Y);
   HumanMMouse(eX, eY, ranX, ranY);
   MouseSpeed := j;
-end;  }
+end;
 
 {*******************************************************************************
 procedure FastClick(button: Integer);
