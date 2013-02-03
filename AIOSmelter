@@ -2,13 +2,14 @@ program AIOSmelter;
 {$Define Smart8}
 {$I SRL/SRL.Simba}
 {$I SPS/SPS.Simba}
+{$i SRL/SRL/Misc/Debug.simba}
 {$I SRL/SRL/Misc/SmartGraphics.Simba}
 
 const
   MEMBERS           = True; // Member or not
   NUMBOFPLAYERS     = 1;
   STARTPLAYER       = 0;
-  WHATTOSMELT       = 'Bronze'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
+  WHATTOSMELT       = 'iron'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
 
 type TOreInfo = record
   OreDTM, BarDTM, BarBMP, Coordinate: Integer;
@@ -39,8 +40,7 @@ begin
 end;
 
 
-//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
-//
+{//By Bandland100, modified by Ashaman88 to shift mouse speeds after every step
 procedure SuperWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: extended);
 var
   veloX,veloY,windX,windY,veloMag,dist,randomDist,lastDist,step: extended;
@@ -109,7 +109,7 @@ begin
   MouseSpeed := MSP;
 end;
 
-Procedure HumanMMouse(eX, eY, ranX, ranY: Integer);
+procedure HumanMMouse(eX, eY, ranX, ranY: Integer);
 var
   randSpeed: extended;
   X,Y,X2,Y2,j,Dist,MP: integer;
@@ -128,7 +128,7 @@ begin
   GetMousePos(X, Y);
   HumanMMouse(eX, eY, ranX, ranY);
   MouseSpeed := j;
-end;
+end;  }
 
 {*******************************************************************************
 procedure FastClick(button: Integer);
@@ -159,13 +159,13 @@ begin
   ReleaseMouse(x, y, iButton);
 end;
 
-Procedure HumanMouseBox(X1, Y1, X2, Y2: Integer);
-    Var
-      FX, FY: Integer;
-    Begin
-      GaussBox(FX,FY,X1,Y1,X2,Y2);
-      HumanMMouse(FX,FY,0,0)
-    End;
+procedure HumanMouseBox(X1, Y1, X2, Y2: Integer);
+var
+  FX, FY: Integer;
+begin
+  GaussBox(FX,FY,X1,Y1,X2,Y2);
+  HumanMMouse(FX,FY,0,0);
+end;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -246,6 +246,7 @@ begin
 
     'iron':
     begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYNBjZGCQB2JFINYCYksg/gzEH4H4DxAzMTEw/ATSpvLiQNVMKJgVSKJjRiwYDACh0QVO');
       Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYHYhsgNgXiz0D8EYh/AjEDE4T/C4jtbWwgAmiYA0iyYsGMODAEAAB9mwbX');
       Bur.BarBMP := BitmapFromString(30, 13, 'meJzVkTEOwDAIA3mB///bpuqADg' +
         'uhLgy5CQxxBEi38oAl8/hYcs6YgepcJrL6xzl5RU6UqRlSn50DsMo' +
@@ -271,6 +272,7 @@ begin
 
     'bronze':
     begin
+      Ore.OreDTM := DTMFromString('mbQAAAHicY2VgYAhhZGDwAeJoII4HYmcgng7Ec4F4PhBPg/K3ppsDVTOhYH4gyYqGGbFgMAAA5mgGMA==');
       Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYHYhsgNgXiz0D8EYh/AjEDE4T/C4ittCUhAmiYH0iyYsGMODAEAABuDgal');
       Bur.BarBMP := BitmapFromString(46, 13, 'meJztkkEKgEAMA31B//9bPVlims' +
         'YiwnowNyGMY2zEH85estZkO7NQJk3qY1qhnhyQml15AjEmmVysDoh' +
@@ -320,16 +322,17 @@ var
 begin
   CTS := GetColorToleranceSpeed;
   ColorToleranceSpeed(2);
-  SetColorSpeed2Modifiers(0.27, 0.98);
-  FindColorsSpiralTolerance(MSCX, MSCY, TPA, 3300962, MSX1, MSY1, MSX2, MSY2, 4);
+  SetColorSpeed2Modifiers(0.09, 1.45);
+  FindColorsSpiralTolerance(MSCX, MSCY, TPA, 2709600, MSX1, MSY1, MSX2, MSY2, 12);
   ColorToleranceSpeed(CTS);
   ATPA := TPAToATPAEx(TPA, 15, 15);
 
   For I := 0 to High(ATPA) do
   begin
+    SMART_DebugATPA(True, ATPA);
     MiddleTPAEx(ATPA[i], x, y);
     if High(TPA) > 100 then
-    MMouse(x, y, 2, 2);
+    HumanMMouse(x, y, 2, 2);
     If(IsUpTextMultiCustom(['anker', 'Banker', 'alk'])) then
     begin
       Result := True;
@@ -358,28 +361,60 @@ procedure WalkToFurnace;
 begin
   ToFurnace := [Point(4884,3926), Point(4901,3905), Point(4900,3872), Point(4906,3856), Point(4896,3842)];
   SPS_WalkPath(ToFurnace);
+  SPS_WalkToPos(Point(4896, 3842));
 end;
 
 procedure WalkToBank;
 begin
   ToBank := [Point(4896,3842), Point(4906,3856), Point(4900,3872), Point(4901,3905), Point(4884,3926)];
   SPS_WalkPath(ToBank);
+  SPS_WalkToPos(Point(4884, 3926));
+end;
+
+procedure Proggy;
+var
+  CurrentEXP, XP, XPH: integer;
+begin
+  if (not(LoggedIn)) then
+  begin
+    Exit;
+  end;
+
+  CurrentEXP := GetXPBarTotal;
+  XPH := round((CurrentEXP - StartEXP) / (GetTimeRunning / 3600000.0));
+  XP := (CurrentEXP - StartEXP);
+
+  ClearDebug;
+  Writeln('############# AIO SMELTER ###########');
+  Writeln('|= Player : ' + Players[CurrentPlayer].Nick);
+  Writeln('|= Time Running : ' + TimeRunning);
+  Writeln('|= Smelting : ' + WHATTOSMELT);
+  Writeln('|= EXP Gained : ' + IntToStr(XP));
+  Writeln('#####################################');
+
+  Smart_ClearCanvas;
+  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'Guccis Safe Cracker', clWhite);
+  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clWhite);
+  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clWhite);
+  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clWhite);
+  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clWhite);
 end;
 
 procedure Bank;
 begin
   if (not(IsMoving)) then
   begin
-    if FindBanker(x, y) then
-    begin
-      ClickMouse2(False);
-      WaitOption('Bank Banker', 400);
-    end;
-
     repeat
-      Wait(100 + Random(100));
+      if FindBanker(x, y) then
+      begin
+        ClickMouse2(False);
+        WaitOption('Bank Banker', 400);
+      end;
+
+      while IsMoving do
+      Wait(200);
+      Writeln('Bank is open.');
     until(BankScreen or PinScreen)
-    Writeln('Bank is open.');
   end;
 
   if (BankScreen) or (PinScreen) then
@@ -399,7 +434,7 @@ begin
             if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
               Writeln('Found ore.');
-              MMouse(x, y, 2, 2);
+              HumanMMouse(x, y, 2, 2);
               ClickMouse2(mouse_right);
               WaitOption('ll', 300);
               CloseBank;
@@ -412,7 +447,7 @@ begin
             begin
               if FindDTMRotated(CopperOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                MMouse(x, y, 0, 0);
+                HumanMMouse(x, y, 0, 0);
                 if IsUpText('opper') then
                 begin
                   ClickMouse2(False);
@@ -427,7 +462,7 @@ begin
 
             if FindDTMRotated(TinOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              MMouse(x, y, 0, 0);
+              HumanMMouse(x, y, 0, 0);
               if IsUpText('in') then
               begin
                 ClickMouse2(False);
@@ -448,7 +483,7 @@ begin
             begin
               if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                MMouse(x, y, 0, 0);
+                HumanMMouse(x, y, 0, 0);
                 if IsUpText('ron') then
                 begin
                   ClickMouse2(False);
@@ -463,7 +498,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              MMouse(x, y, 0, 0);
+              HumanMMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -484,7 +519,7 @@ begin
             begin
               if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                MMouse(x, y, 0, 0);
+                HumanMMouse(x, y, 0, 0);
                 if IsUpText('ithril') then
                 begin
                   ClickMouse2(False);
@@ -499,7 +534,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              MMouse(x, y, 0, 0);
+              HumanMMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -548,7 +583,7 @@ begin
             begin
               if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                MMouse(x, y, 0, 0);
+                HumanMMouse(x, y, 0, 0);
                 if IsUpText('une') then
                 begin
                   ClickMouse2(False);
@@ -563,7 +598,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              MMouse(x, y, 0, 0);
+              HumanMMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -584,7 +619,7 @@ begin
             begin
               if FindDTMRotated(Ore.OreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                MMouse(x, y, 0, 0);
+                HumanMMouse(x, y, 0, 0);
                 if IsUpText('damant') then
                 begin
                   ClickMouse2(False);
@@ -599,7 +634,7 @@ begin
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
-              MMouse(x, y, 0, 0);
+              HumanMMouse(x, y, 0, 0);
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
@@ -636,7 +671,6 @@ begin
 
 end;
 
-
 function FindFurnace:Boolean;
 var
   FurnToolong, x, y, i, H, CTS :Integer;
@@ -665,14 +699,14 @@ begin
        SortATPAFromMidPoint(ATPA, Point(190, 213));
        H := High(ATPA)
 
-      SMART_DebugATPA(True, ATPA)
+      SMART_DebugATPA(True, ATPA);
 
        begin
         for i:=0 to H do
           begin
              repeat
               MiddleTpaEx(ATPA[i], x, y);
-              HumanMMouse(x, y, 5, 5)
+              HumanMMouse(x, y, 5, 5);
               if WaitUptextMulti(['Smel', 'Furn', 'ace'] , 800) then
               begin
                 Fastclick(True);
@@ -691,7 +725,7 @@ end;
 procedure AntiBan;
 begin
   if(not(LoggedIn))then
-  exit;
+  Exit;
   FindNormalRandoms;
   case Random(100) of
   0..20:
@@ -734,10 +768,10 @@ begin
   begin
     MarkTime(JustInCase)
 
-    if not FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15) then
+    if (not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15))) then
     begin
     repeat
-      HumanMMouse(92, 150, 4, 4)
+      HumanMMouse(92, 150, 4, 4);
       Fastclick(True);
       Wait(500 + Random(750));
       if TimeFromMark(JustInCase) > 5000 then Failsafe('Did not Find my Bitmap');
@@ -751,38 +785,14 @@ begin
     until(not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15)));
 
     repeat
-      AntiBan;
+      if TimeFromMark(JustInCase) > 12000 then
+      begin
+        AntiBan;
+      end;
       Wait(2000 + Random(1500));
-    until( not FindDTMRotated(Ore.OreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound))
+    until(not(FindDTMRotated(Ore.OreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound)))
   end;
 end;
-
-begin
-  ClearDebug;
-  {$IFDEF SIMBAMAJOR980}
-    SMART_SERVER := 24;
-    SMART_MEMBERS := MEMBERS;
-    SMART_SIGNED := TRUE;
-    SMART_SUPERDETAIL := FALSE;
-  {$ELSE}
-    SMART_FIXSPEED := TRUE;
-  {$ENDIF}
-  ActivateClient;
-  SetupSRL;
-  LoadOreInfo;
-  SRL_SixHourFix := True;
-  DTMS;
-  DeclarePlayers;
-  if not (LoggedIn) then
-  LoginPlayer;
-  Wait(4000 + Random(400));
-  StartEXP := GetXPBarTotal;
-  FindNormalRandoms;
-  repeat
-  until(False)
-  AddOnTerminate('FR33DTMS');
-end.
-
 
 function FindBankbooth:Boolean;
 var
@@ -829,4 +839,49 @@ begin
           end;
         end;
     end;
-end; 
+end;
+
+begin
+  ClearDebug;
+  {$IFDEF SIMBAMAJOR980}
+    SMART_SERVER := 24;
+    SMART_MEMBERS := MEMBERS;
+    SMART_SIGNED := TRUE;
+    SMART_SUPERDETAIL := FALSE;
+  {$ELSE}
+    SMART_FIXSPEED := TRUE;
+  {$ENDIF}
+  ActivateClient;
+  SetupSRL;
+  SPS_Setup(RUNESCAPE_SURFACE, ['12_9']);
+  LoadOreInfo;
+  SRL_SixHourFix := True;
+  DTMS;
+  DeclarePlayers;
+  if not (LoggedIn) then
+  begin
+    LoginPlayer;
+  end;
+  Wait(4000 + Random(400));
+  StartEXP := GetXPBarTotal;
+  FindNormalRandoms;
+  ClickNorth(SRL_ANGLE_HIGH);
+  repeat
+    if (not(InvFull)) then
+    begin
+      WalkToBank;
+      repeat
+        Bank;
+      until(InvCount > 25)
+    end;
+    if (InvCount > 1) then
+    begin
+      WalkToFurnace;
+      while IsMoving do
+      Wait(200);
+      FindFurnace;
+      SmeltThem;
+    end;
+  until(False)
+  AddOnTerminate('FR33DTMS');
+end.
