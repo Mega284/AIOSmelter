@@ -464,6 +464,16 @@ begin
   end;
 end;
 
+function FindWithdraw: Boolean;
+begin
+  if FindBitmapToleranceIn(WithdrawBMP, x, y, MSX1, MSY1, MSX2, MSY2, 45) then
+  begin
+    Result := True;
+    Exit;
+  end else begin Writeln('Did not find Withdraw-X') Exit; end;
+end;
+
+
 procedure Bank;
 begin
   if (not(IsMoving)) then
@@ -515,11 +525,19 @@ begin
                 if IsUpText('opper') then
                 begin
                   ClickMouse2(False);
-                  if (not(ChooseOption('14'))) then
-                  begin
-                    Chooseoption('X');
-                    TypeSendEx('14', True);
-                  end else ChooseOption('14');
+                  if ChooseOption('14') then Wait(100)
+                   else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('14');
+                    end;
+                  end;
                 end;
               end;
             end;
@@ -527,17 +545,24 @@ begin
             if FindDTMRotated(TinOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
               MMouse(x, y, 0, 0);
-              if IsUpText('in') then
-              begin
-                ClickMouse2(False);
-                if (not(ChooseOption('14'))) then
+              if WaitUpText('in', 2000) then
                 begin
-                  Chooseoption('X');
-                  TypeSendEx('14', True);
-                end else ChooseOption('14');
-              end;
-            end;
-
+                  ClickMouse2(False);
+                  if ChooseOption('14') then Wait(100)
+                   else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('14');
+                    end;
+                  end;
+                end;
+               end;
             CloseBank;
           end;
 
@@ -548,33 +573,48 @@ begin
               if FindDTMRotated(IronOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
                 MMouse(x, y, 0, 0);
-                if IsUpText('ron') then
+                if WaitUpText('ore', 2000) then
                 begin
                   ClickMouse2(False);
-                  if (not(ChooseOption('9'))) then
-                  begin
-                    Chooseoption('X');
-                    TypeSendEx('9', True);
-                  end else ChooseOption('9');
+                  if ChooseOption('9') then Wait(100)
+                   else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('9');
+                    end;
+                  end;
                 end;
               end;
             end;
 
-            if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
-            begin
-              MMouse(x, y, 0, 0);
-              if IsUpText('oal') then
+              if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
               begin
-                ClickMouse2(False);
-                if (not(ChooseOption('18'))) then
-                begin
-                  Chooseoption('X');
-                  TypeSendEx('18', True);
-                end else ChooseOption('18');
+                MMouse(x, y, 0, 0);
+                 if WaitUpText('oal', 2000) then
+                 begin
+                  ClickMouse2(False);
+                  if ChooseOption('18') then Wait(100)
+                  else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('18');
+                    end;
+                   end;
+                 end;
+              CloseBank;
               end;
-            end;
-
-            CloseBank;
           end;
 
           'mithril':
@@ -587,12 +627,20 @@ begin
                 if IsUpText('ithril') then
                 begin
                   ClickMouse2(False);
-                  if (not(ChooseOption('5'))) then
-                  begin
-                    Chooseoption('X');
-                    TypeSendEx('5', True);
-                  end else ChooseOption('5');
-                end;
+                  if ChooseOption('5') then Wait(100)
+                  else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('5');
+                    end;
+                   end;
+                 end;
               end;
             end;
 
@@ -602,13 +650,21 @@ begin
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
-                if (not(ChooseOption('20'))) then
-                begin
-                  Chooseoption('X');
-                  TypeSendEx('20', True);
-                end else ChooseOption('20');
+                if ChooseOption('20') then Wait(100)
+                  else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('20');
+                    end;
+                   end;
+                 end;
               end;
-            end;
 
             CloseBank;
           end;
@@ -651,14 +707,21 @@ begin
                 if IsUpText('une') then
                 begin
                   ClickMouse2(False);
-                  if (not(ChooseOption('3'))) then
-                  begin
-                    Chooseoption('X');
-                    TypeSendEx('3', True);
-                  end else ChooseOption('3');
-                end;
+              if ChooseOption('3') then Wait(100)
+                  else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('3');
+                    end;
+                   end;
+                 end;
               end;
-            end;
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
@@ -666,14 +729,22 @@ begin
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
-                if (not(ChooseOption('24'))) then
-                begin
-                  Chooseoption('X');
-                  TypeSendEx('24', True);
-                end else ChooseOption('24');
+                if ChooseOption('24') then Wait(100)
+                  else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('24');
+                    end;
+                   end;
+                 end;
               end;
-            end;
-
+             end;
             CloseBank;
           end;
 
@@ -687,14 +758,22 @@ begin
                 if IsUpText('damant') then
                 begin
                   ClickMouse2(False);
-                  if (not(ChooseOption('4'))) then
-                  begin
-                    Chooseoption('X');
-                    TypeSendEx('4', True);
-                  end else ChooseOption('4');
-                end;
+                  if ChooseOption('4') then Wait(100)
+                  else
+                   begin
+                    MMouse(x,y,0,0)
+                    Clickmouse2(false)
+                    if Waitfunc(@FindWithdraw, 100, 2000) then
+                    begin
+                      MMouse(x, y, 0, 0)
+                      ClickMouse2(True);
+                      Wait(1000 + Random(250));
+                      TypeSend('4');
+                    end;
+                   end;
+                 end;
               end;
-            end;
+          end;
 
             if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
             begin
@@ -702,21 +781,28 @@ begin
               if IsUpText('oal') then
               begin
                 ClickMouse2(False);
-                if (not(ChooseOption('24'))) then
+                if ChooseOption('24') then Wait(100)
+                else
                 begin
-                  Chooseoption('X');
-                  TypeSendEx('24', True);
-                end else ChooseOption('24');
+                  MMouse(x,y,0,0)
+                  Clickmouse2(false)
+                  if Waitfunc(@FindWithdraw, 100, 2000) then
+                  begin
+                    MMouse(x, y, 0, 0)
+                    ClickMouse2(True);
+                    Wait(1000 + Random(250));
+                    TypeSend('24');
+                  end;
+                end;
               end;
             end;
-
             CloseBank;
           end;
         end;
       end;
     end;
   end;
-end;
+end;      
 
 function SmeltingScreen: Boolean;    // Creds To Ashaman baby
 var
