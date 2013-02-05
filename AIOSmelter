@@ -9,7 +9,7 @@ const
   MEMBERS           = True; // Member or not
   NUMBOFPLAYERS     = 1;
   STARTPLAYER       = 0;
-  WHATTOSMELT       = 'iron'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
+  WHATTOSMELT       = 'steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
 
 type TOreInfo = record
   POreDTM, SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
@@ -42,7 +42,7 @@ begin
 end;
 
 
-//By Benland100, modified by Ashaman88 to shift mouse speeds after every step
+{//By Benland100, modified by Ashaman88 to shift mouse speeds after every step
 procedure SuperWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: extended);
 var
   veloX,veloY,windX,windY,veloMag,dist,randomDist,lastDist,step: extended;
@@ -130,7 +130,7 @@ begin
   GetMousePos(X, Y);
   HumanMMouse(eX, eY, ranX, ranY);
   MouseSpeed := j;
-end;
+end;  }
 
 {*******************************************************************************
 procedure FastClick(button: Integer);
@@ -370,7 +370,7 @@ end;
 
 procedure DTMS;
 begin
-  CoalDTM := DTMFromString('mbQAAAHicY2VgYOAHYikg5gZiJgYIANEcQCwIFQcBNTVZqAwCg/SyomFGLBgMAETzAPs=');
+  CoalDTM := DTMFromString('mLgAAAHicY2JgYPBmZGAIBuLnQPZHIFZVlQFjViAbhBmhmIEBAGd6A1M=');
   WithX := BitmapFromString(9, 11, 'meJxTk+VSw40qJ84AIqxcIKOoZxo' +
         'nGxMGlxuIgGwgAjIgWoDiaCqBCM0ECIJIQcTRpOAaMcUhVsAsRdcC' +
         'lMJ0LbKrkDXi8hcA8vRNIg==');
@@ -492,8 +492,9 @@ end;
 
 function FindWithdraw(BMP:Integer): Boolean;       //Changed from here and banking procedure :) Woop woop
 begin
-  if FindBitmapToleranceIn(BMP, x, y, MSX1, MSY1, MSX2, MSY2, 45) then
+  if FindBitmapToleranceIn(BMP, x, y, MSX1, MSY1, MSX2, MSY2, 35) then
   begin
+    Writeln('ddd');
     Result := True;
     Exit;
   end else Exit;
@@ -503,26 +504,26 @@ procedure WithdrawPrimaryOre;
 begin
   if FindDTMRotated(Ore.POreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
   begin
-    Writeln('found')
-    HumanMMouse(x, y, 1, 1)
+    Writeln('found');
+    MMouse(x, y, 1, 1);
     if WaitUptext(Up.Upt, 1200) then
     begin
       Fastclick(False);
-      Wait(1000)
-      if (lowercase(WhatTOSMelt) = 'gold') or (lowercase(WhatTOSMelt) = 'iron') or (lowercase(WhatTOSMelt) = 'silver') then WaitOption('ll', 1200)
+      Wait(1000);
+      if (lowercase(WHATTOSMELT) = 'gold') or (lowercase(WHATTOSMELT) = 'iron') or (lowercase(WHATTOSMELT) = 'silver') then WaitOption('ll', 1200)
       else
       begin
         if FindWithdraw(Wit.WithBMP) then
         begin
-          HumanMMouse(x,y, 1, 1);
+          MMouse(x,y, 1, 1);
           Fastclick(True);
         end else
         if FindWithdraw(WithX) then
         begin
-          HumanMMouse(x,y, 1, 1)
+          MMouse(x,y, 1, 1);
           Fastclick(True);
           Wait(1200);
-          TypeSendEx('18', true)
+          TypeSendEx('9', true);
         end;
       end;
     end;
@@ -534,7 +535,7 @@ begin
   if FindDTMRotated(Ore.SOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
   begin
     Writeln('found')
-    HumanMMouse(x, y, 1, 1)
+    MMouse(x, y, 1, 1)
     if (lowercase(WHATTOSMELT) = 'bronze') then
     begin
       if WaitUptext('Tin', 1200) then
@@ -543,8 +544,11 @@ begin
         WaitOption('ll', 1200)
       end;
     end else
+    if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
     begin
-      if WaitUptext('Coa', 1200) then
+      writeln('found coal');
+      MMouse(x, y, 1, 1);
+      if WaitUptext('oal', 1200) then
       begin
         Fastclick(False);
         WaitOption('ll', 1200)
@@ -583,18 +587,24 @@ begin
     begin
       DepositAll;
       begin
-      if (lowercase(WhatTOSMelt) = 'gold') or
-         (lowercase(WhatTOSMelt) = 'iron') or
-         (lowercase(WhatTOSMelt) = 'silver') then
+        if (lowercase(WHATTOSMELT) = 'gold') or
+           (lowercase(WHATTOSMELT) = 'iron') or
+           (lowercase(WHATTOSMELT) = 'silver') then
 
         WithdrawPrimaryOre
       else
-        WithdrawPrimaryOre;
-        WithdrawSecondaryOre;
+        if InvCount < 2 then
+        begin
+          WithdrawPrimaryOre;
+          Wait(1000 + Random(500));
+          repeat
+            WithdrawSecondaryOre;
+          until(InvFull)
+        end;
       end;
-    end;
+    end;         // hope u liked it
   end;
-end;          // hope u liked it
+end;
 
 function SmeltingScreen: Boolean;    // Creds To Ashaman baby
 var
@@ -710,7 +720,7 @@ begin
     end;
 
     repeat
-      HumanMousebox(226, 305, 482, 323);  // To click on the right ore.
+      HumanMousebox(X1.Coordinate, Y1.Coordinate, X2.Coordinate, Y2.Coordinate);  // To click on the right ore.
       FastClick(True);
       Wait(1200)
     until(not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15)));
