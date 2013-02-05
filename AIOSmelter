@@ -12,13 +12,14 @@ const
   WHATTOSMELT       = 'iron'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
 
 type TOreInfo = record
-  POreDTM,SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
+  POreDTM, SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
   Upt:String;
 end;
 
 var
-  CopperOreDTM, TinOreDTM, CoalDTM, IronOreDTM, x, y, StartEXP: integer;
-  BronzeBMP, IronBMP, SilverBMP, GoldBMP, SteelBMP, MithrilBMP, AddyBMP, RuneBMP: Integer;
+  CopperOreDTM, TinOreDTM, CoalDTM, x, y, StartEXP: integer;
+  BronzeBMP, IronBMP, SilverBMP, GoldBMP, SteelBMP, MithrilBMP, AddyBMP, RuneBMP: integer;
+  WithX, Bars: integer;
   ToFurnace, ToBank: TPointArray;
   Ore, Bar, Bur, Wit, Up, X1, Y1, X2, Y2: TOreInfo;
   aFound: Extended;
@@ -41,7 +42,7 @@ begin
 end;
 
 
-{//By Benland100, modified by Ashaman88 to shift mouse speeds after every step
+//By Benland100, modified by Ashaman88 to shift mouse speeds after every step
 procedure SuperWindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: extended);
 var
   veloX,veloY,windX,windY,veloMag,dist,randomDist,lastDist,step: extended;
@@ -99,7 +100,7 @@ begin
       MoveMouse(Round(xs), Round(ys));
 
     step:= hypot(xs - lastX, ys - lastY);
-    //W := round((maxWait - minWait) * (step / maxStep) + minWait);
+    W := round((maxWait - minWait) * (step / maxStep) + minWait);
     wait(W);
     lastdist:= dist;
   end;
@@ -129,7 +130,7 @@ begin
   GetMousePos(X, Y);
   HumanMMouse(eX, eY, ranX, ranY);
   MouseSpeed := j;
-end;  }
+end;
 
 {*******************************************************************************
 procedure FastClick(button: Integer);
@@ -186,11 +187,11 @@ begin
         'rKxMbK3PDvFVABBQEsoEi+poSQCmICJANIZFF4OYAFcPVwM1Rl+OF' +
         'o9aFq4EiGgoCcNS6aA1QpHXRaiBSl+cDIiADKKImxwfRDtQCRKzMj' +
         'ACIBj3I');
-      Up.Upt := 'Run'
-      X1.Coordinate := 129
-      Y1.Coordinate := 234
-      X2.Coordinate := 156
-      Y2.Coordinate := 263
+      Up.Upt := 'Run';
+      X1.Coordinate := 129;
+      Y1.Coordinate := 234;
+      X2.Coordinate := 156;
+      Y2.Coordinate := 263;
     end;
 
     'adamant':
@@ -204,11 +205,11 @@ begin
       Wit.WithBMp := BitmapFromString(14, 11, 'meJxTleFSpQZqmr8CgohRVjt7OR' +
         'CxsjDiVwlRhl8lxECgAmJUQhQgM9AQsoHIKoHiEBFkhCyLzMbjF2T' +
         'v43In3HxiQgnNawD4G2hz');
-      Up.Upt := 'Ada'
-      X1.Coordinate := 30
-      Y1.Coordinate := 185
-      X2.Coordinate := 56
-      Y2.Coordinate := 213
+      Up.Upt := 'Ada';
+      X1.Coordinate := 30;
+      Y1.Coordinate := 185;
+      X2.Coordinate := 56;
+      Y2.Coordinate := 213;
     end;
 
     'gold':
@@ -219,11 +220,11 @@ begin
         'QrZRaTVRvCq5+6/0uxNfTjrQnZzI5+Oo+O8CEZsRyQvTQBScbXsXj' +
         'uJX0Z6Ml9d3zo83gttX1CloQ7stM/vCNns2WwQZKr50010yv/ASV9' +
         'NEsA/QWwQ42u');
-      Up.Upt := 'Gol'
-      X1.Coordinate := 79
-      Y1.Coordinate := 132
-      X2.Coordinate := 105
-      Y2.Coordinate := 164
+      Up.Upt := 'Gol';
+      X1.Coordinate := 79;
+      Y1.Coordinate := 132;
+      X2.Coordinate := 105;
+      Y2.Coordinate := 164;
     end;
 
     'silver':
@@ -234,11 +235,11 @@ begin
         'yMjyV+2C+srIXi/lMcF7TYqxxQ0syi2OhlD9RRme12+ESYmMTfIRf' +
         '5zDpDB0vNUs088sEMeLi83dKuHkPPoYMNM7yb8199hV0wRj7Bcqma' +
         'BAq7IophQ+jPFDIPR+h07JoKnoAclNQCzX2FT3ACr+7xZQ==');
-      Up.Upt := 'Sil'
-      X1.Coordinate := 179
-      Y1.Coordinate := 84
-      X2.Coordinate := 209
-      Y2.Coordinate := 116
+      Up.Upt := 'Sil';
+      X1.Coordinate := 179;
+      Y1.Coordinate := 84;
+      X2.Coordinate := 209;
+      Y2.Coordinate := 116;
     end;
 
     'mithril':
@@ -250,11 +251,11 @@ begin
         'kuH06mmgHmHB0Wj+SroUWqHuebpLo+EDv6OZtyEOTOaNuYNGtl3Ta' +
         'PEVpyCN61Gp59wiR/3X0/pae5L9K7xdf5nc9QvdEEq6Ah/eTkPrT0' +
         'AVXUj6Z');
-      Up.Upt := 'Mit'
-      X1.Coordinate := 179
-      Y1.Coordinate := 133
-      X2.Coordinate := 205
-      Y2.Coordinate := 165
+      Up.Upt := 'Mit';
+      X1.Coordinate := 179;
+      Y1.Coordinate := 133;
+      X2.Coordinate := 205;
+      Y2.Coordinate := 165;
     end;
 
     'iron':
@@ -264,11 +265,11 @@ begin
       Bur.BarBMP := BitmapFromString(30, 13, 'meJzVkTEOwDAIA3mB///bpuqADg' +
         'uhLgy5CQxxBEi38oAl8/hYcs6YgepcJrL6xzl5RU6UqRlSn50DsMo' +
         'G26G1Dc5ttXVu2y515r3mr5N5/3zIe2WqSlQoWo82OfYYU/E=');
-      Up.Upt := 'on o'
-      X1.Coordinate := 126
-      Y1.Coordinate := 85
-      X2.Coordinate := 159
-      Y2.Coordinate := 117
+      Up.Upt := 'on o';
+      X1.Coordinate := 126;
+      Y1.Coordinate := 85;
+      X2.Coordinate := 159;
+      Y2.Coordinate := 117;
     end;
 
     'steel':
@@ -282,11 +283,11 @@ begin
       Wit.WithBMP := BitmapFromString(8, 10, 'meJxTk+WtnT4fjlRleSAIwmVnZQK' +
         'i8klzgQguDmQDBdXAGiFsMsSBXIixEIvgaiAI2V5kcTWYayEK0MSJ' +
         'UQwAcdlBnA==');
-      Up.Upt := 'on o'
-      X1.Coordinate := 30
-      Y1.Coordinate := 135
-      X2.Coordinate := 56
-      Y2.Coordinate := 165
+      Up.Upt := 'on o';
+      X1.Coordinate := 30;
+      Y1.Coordinate := 135;
+      X2.Coordinate := 56;
+      Y2.Coordinate := 165;
     end;
 
     'bronze':
@@ -301,15 +302,14 @@ begin
       Wit.WithBMP := BitmapFromString(12, 12, 'meJxTleVWJQI1zVsORFgFIeIQRu' +
         '2sZawsjGgKgIJwcWQ2XA1EEC6OZg7EECAXvxoIF1kcjQ0xBL8aItl' +
         'AhOw1TPdALEJ2M5p6tGCE64VrRA4iZDMBlgt8XQ==');
-      Up.Upt := 'Cop'
-      X1.Coordinate := 26
-      Y1.Coordinate := 83
-      X2.Coordinate := 60
-      Y2.Coordinate := 118
-
+      Up.Upt := 'Cop';
+      X1.Coordinate := 26;
+      Y1.Coordinate := 83;
+      X2.Coordinate := 60;
+      Y2.Coordinate := 118;
     end;
   end;
-end;   
+end;
 
 function Walking(Color, Tolerance: Integer; SortFrom: tpoint): Boolean;
 var
@@ -373,7 +373,7 @@ begin
   CoalDTM := DTMFromString('mbQAAAHicY2VgYOAHYikg5gZiJgYIANEcQCwIFQcBNTVZqAwCg/SyomFGLBgMAETzAPs=');
   WithX := BitmapFromString(9, 11, 'meJxTk+VSw40qJ84AIqxcIKOoZxo' +
         'nGxMGlxuIgGwgAjIgWoDiaCqBCM0ECIJIQcTRpOAaMcUhVsAsRdcC' +
-        'lMJ0LbKrkDXi8hcA8vRNIg==');   
+        'lMJ0LbKrkDXi8hcA8vRNIg==');
 end;
 
 procedure FR33DTMS;
@@ -535,9 +535,9 @@ begin
   begin
     Writeln('found')
     HumanMMouse(x, y, 1, 1)
-    if (lowercase(WhatTOSMelt) = 'bronze') then
+    if (lowercase(WHATTOSMELT) = 'bronze') then
     begin
-    if WaitUptext('Tin', 1200) then
+      if WaitUptext('Tin', 1200) then
       begin
         Fastclick(False);
         WaitOption('ll', 1200)
@@ -554,6 +554,8 @@ begin
 end;
 
 procedure Bank;
+var
+  Bx, By: integer;
 begin
   if (not(IsMoving)) then
   begin
@@ -589,7 +591,6 @@ begin
       else
         WithdrawPrimaryOre;
         WithdrawSecondaryOre;
-
       end;
     end;
   end;
@@ -722,7 +723,7 @@ begin
       end;
       Proggy;
       Wait(2000 + Random(1500));
-    until(not(FindDTMRotated(Ore.OreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound)))
+    until(not(FindDTMRotated(Ore.POreDTM, x, y, MIX1, MIY1, MIX2, MIY2, -Pi/4, Pi/4, Pi/60, aFound)))
   end;
 end;
 
