@@ -10,6 +10,8 @@ const
   NUMBOFPLAYERS     = 1;
   STARTPLAYER       = 0;
   WHATTOSMELT       = 'steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
+  PRIMARYORESLOT    = 2;
+  SECONDARYORESLOT  = 3;
 
 type TOreInfo = record
   POreDTM, SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
@@ -502,58 +504,90 @@ end;
 
 procedure WithdrawPrimaryOre;
 begin
-  if FindDTMRotated(Ore.POreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+  MouseBankSlot(PRIMARYORESLOT, 3);
+  if WaitUpText('re', 500) then
   begin
-    Writeln('found');
-    MMouse(x, y, 1, 1);
-    if WaitUptext(Up.Upt, 1200) then
-    begin
-      Fastclick(False);
-      Wait(1000);
-      if (lowercase(WHATTOSMELT) = 'gold') or (lowercase(WHATTOSMELT) = 'iron') or (lowercase(WHATTOSMELT) = 'silver') then WaitOption('ll', 1200)
-      else
-      begin
-        if FindWithdraw(Wit.WithBMP) then
-        begin
-          MMouse(x,y, 1, 1);
-          Fastclick(True);
-        end else
-        if FindWithdraw(WithX) then
-        begin
-          MMouse(x,y, 1, 1);
-          Fastclick(True);
-          Wait(1200);
-          TypeSendEx('9', true);
-        end;
-      end;
+    ClickMouse2(False);
+    case (lowercase(WHATTOSMELT)) of
+
+       'gold':
+       begin
+         ChooseOption('ll');
+       end;
+
+       'silver':
+       begin
+         ChooseOption('ll');
+       end;
+
+       'iron':
+       begin
+         ChooseOption('ll');
+       end;
+
+       'bronze':
+       begin
+         if (not(ChooseOption('14'))) then
+         begin
+          ChooseOption('X');
+          Wait(500 + Random(500));
+          TypeSend('14');
+         end else ChooseOption('14');
+       end;
+
+       'steel':
+       begin
+         if (not(ChooseOption('9'))) then
+         begin
+          ChooseOption('X');
+          Wait(500 + Random(500));
+          TypeSend('9');
+         end else ChooseOption('9');
+       end;
+
+       'mithril':
+       begin
+         if (not(ChooseOption('6'))) then
+         begin
+          ChooseOption('X');
+          Wait(500 + Random(500));
+          TypeSend('6');
+         end else ChooseOption('6');
+       end;
+
+       'adamant':
+       begin
+         if (not(ChooseOption('4'))) then
+         begin
+          ChooseOption('X');
+          Wait(500 + Random(500));
+          TypeSend('4');
+         end else ChooseOption('4');
+       end;
+
+       'rune':
+       begin
+         if (not(ChooseOption('3'))) then
+         begin
+          ChooseOption('X');
+          Wait(500 + Random(500));
+          TypeSend('3');
+         end else ChooseOption('3');
+       end;
     end;
   end;
 end;
 
 procedure WithdrawSecondaryOre;
 begin
-  if FindDTMRotated(Ore.SOreDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
+  MouseBankSlot(SECONDARYORESLOT, 3);
+  if WaitUpText('re', 500) then
   begin
-    Writeln('found')
-    MMouse(x, y, 1, 1)
-    if (lowercase(WHATTOSMELT) = 'bronze') then
+    ClickMouse2(False);
+    if WHATTOSMELT = 'bronze' then
     begin
-      if WaitUptext('Tin', 1200) then
-      begin
-        Fastclick(False);
-        WaitOption('ll', 1200)
-      end;
-    end else
-    if FindDTMRotated(CoalDTM, x, y, MSX1, MSY1, MSX2, MSY2, -Pi/4, Pi/4, Pi/60, aFound) then
-    begin
-      writeln('found coal');
-      MMouse(x, y, 1, 1);
-      if WaitUptext('oal', 1200) then
-      begin
-        Fastclick(False);
-        WaitOption('ll', 1200)
-      end;
-    end;
+      ChooseOption('14');
+    end else ChooseOption('ll');
   end;
 end;
 
@@ -586,23 +620,15 @@ begin
     if BankScreen then
     begin
       DepositAll;
+      if InvCount < 2 then
       begin
-        if (lowercase(WHATTOSMELT) = 'gold') or
-           (lowercase(WHATTOSMELT) = 'iron') or
-           (lowercase(WHATTOSMELT) = 'silver') then
-
-        WithdrawPrimaryOre
-      else
-        if InvCount < 2 then
+        WithdrawPrimaryOre;
+        if (lowercase(WHATTOSMELT) = 'bronze') or (lowercase(WHATTOSMELT) = 'steel') or (lowercase(WHATTOSMELT) = 'mithril') or(lowercase(WHATTOSMELT) = 'adamant') or (lowercase(WHATTOSMELT) = 'rune') then
         begin
-          WithdrawPrimaryOre;
-          Wait(1000 + Random(500));
-          repeat
-            WithdrawSecondaryOre;
-          until(InvFull)
-        end;
+          WithdrawSecondaryOre;
+        end else CloseBank;
       end;
-    end;         // hope u liked it
+    end;
   end;
 end;
 
