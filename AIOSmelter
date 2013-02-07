@@ -10,9 +10,9 @@ const
   NUMBOFPLAYERS     = 1;
   STARTPLAYER       = 0;
   WHATTOSMELT       = 'steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
-  PRIMARYORESLOT    = 2;
-  SECONDARYORESLOT  = 3;
-  COALBAG           = True; // True or False
+  PRIMARYORESLOT    = 3;
+  SECONDARYORESLOT  = 4;
+  COALBAG           = False; // True or False
 
 type TOreInfo = record
   POreDTM, SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
@@ -20,7 +20,7 @@ type TOreInfo = record
 end;
 
 var
-  CopperOreDTM, TinOreDTM, CoalDTM, x, y, StartEXP, Bars, CoalBagz: integer;
+  CopperOreDTM, TinOreDTM, CoalDTM, x, y, StartEXP, Bars, CoalBagz, SmeltBMP: integer;
   ToFurnace, ToBank: TPointArray;
   Ore, Bar, Bur, Up, X1, Y1, X2, Y2: TOreInfo;
   aFound: Extended;
@@ -256,12 +256,12 @@ begin
 
     'iron':
     begin
-      Ore.POreDTM := DTMFromString('mbQAAAHicY2VgYOAHYikg5gZiJgYIANEcQCwIFQcBU3lxqAwCg/SyomFGLBgMAEWIAP0=');
+      Ore.POreDTM := DTMFromString('mLgAAAHicY2JgYOgD4qlAPAeIFwOxuYIEGLMB2SDMCMUMDABqxgNR');
       Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYHYhsgNgXiz0D8EYh/AjEDE4T/C4jtbWwgAmiYA0iyYsGMODAEAAB9mwbX');
       Bur.BarBMP := BitmapFromString(30, 13, 'meJzVkTEOwDAIA3mB///bpuqADg' +
         'uhLgy5CQxxBEi38oAl8/hYcs6YgepcJrL6xzl5RU6UqRlSn50DsMo' +
         'G26G1Dc5ttXVu2y515r3mr5N5/3zIe2WqSlQoWo82OfYYU/E=');
-      Up.Upt := 'on o';
+      Up.Upt := 'on';
       X1.Coordinate := 126;
       Y1.Coordinate := 85;
       X2.Coordinate := 159;
@@ -270,13 +270,13 @@ begin
 
     'steel':
     begin
-      Ore.POreDTM := DTMFromString('mbQAAAHicY2VgYOAHYikg5gZiJgYIANEcQCwIFQcBU3lxqAwCg/SyomFGLBgMAEWIAP0=');
+      Ore.POreDTM := DTMFromString('mLgAAAHicY2JgYOgD4qlAPAeIFwOxuYIEGLMB2SDMCMUMDABqxgNR');
       Bar.BarDTM := DTMFromString('mggAAAHicY2NgYNBlZGBQBWJ5INYDYjMgtgHi90D8EYh/ATEDEwPDTyg/NTERIoCG+YEkKxbMiANDAACejgdI');
       Bur.BarBMP := BitmapFromString(33, 11, 'meJzVUkEOwCAM8gX+/7e6rFljgD' +
         'KT7SKnBtmAau9nY9xY54TUfLGIoT1g64v8ywJ+K6v5vlK8nqY+6lQ' +
         'Fua/nd7JxQdm34iG5bArfAnilbGGSV/EAnvfb2FnUKy83kNfNj6FS' +
         'Sj7mCdDBwU0=');
-      Up.Upt := 'on o';
+      Up.Upt := 'on';
       X1.Coordinate := 30;
       Y1.Coordinate := 135;
       X2.Coordinate := 56;
@@ -362,27 +362,35 @@ procedure DTMS;
 begin
   CoalDTM := DTMFromString('mLgAAAHicY2JgYPBmZGAIBuLnQPZHIFZVlQFjViAbhBmhmIEBAGd6A1M=');
   CoalBagz := DTMFromString('mLgAAAHicY2JgYAhnZmAIBeIURgaGKCCeXRrGMGd6BgMXUA6EGaGYgQEAeuAEjA==');
+  SmeltBMP := BitmapFromString(73, 18, 'meJztlL1qQkEQhRv/YuM72PgCdu' +
+        'kCggRsLGysLKysBIuEGBBs09la2NgopMhzBPIQeZEsDAzLnLm7514' +
+        'blcBX3D0ze87c9a7Dfn14p4wf/7k9pk/XSKfbC1xoMhvUeCQxptR2' +
+        'PuXn+zdwof/8uUGiiTFB5B3KBqm5HGNZn8WozhDHKaqQJhWycMnzO' +
+        'qllic2LRHlZfdClq8QmWEJnc6rMzIH3aSMLmqsuz3GD+VxRQVtTMn' +
+        'HuLWDG/pg3s6C/viM2mM8VFdnlzo8l7NTQLLtFi8E9PYmLq7LMKum' +
+        'ba/aiFcl+yYJjuMNoc0IpOijXDa1IDqsHBkk0S3cYbUgo7q+mEWYv' +
+        'WpEcX/LE5q6IDWmlyFCWpuo2M5zX7Szpq2EacIuroKf74m4nM3Pg9' +
+        'EZR9CdsqtUUY5jtVD3N54YF7wVWqylomO4kB/7a3i1/LLccTA==');
 end;
 
 procedure FR33DTMS;
 begin
   FreeDTMS([TinOreDTM, CopperOreDTM, CoalDTM, Ore.POreDTM, Ore.SOreDTM, CoalBagz]);
+  FreeBitmap(SmeltBMP);
 end;
 
 procedure WalkToFurnace;
 begin
   Status('Walking To Furnace.');
-  ToFurnace := [Point(4884, 3926), Point(4901, 3905), Point(4900, 3872), Point(4906, 3856), Point(4896, 3842)];
+  ToFurnace := [Point(4880, 3924), Point(4891, 3899), Point(4892, 3887), Point(4897, 3874), Point(4897, 3866), Point(4896, 3859), Point(4895, 3847)];
   SPS_WalkPath(ToFurnace);
-  SPS_WalkToPos(Point(4896, 3842));
 end;
 
 procedure WalkToBank;
 begin
   Status('Walking To Bank.');
-  ToBank := [Point(4896, 3842), Point(4906, 3856), Point(4900, 3872), Point(4901, 3905), Point(4884, 3926)];
+  ToBank := [Point(4896, 3842), Point(4906, 3856), Point(4900, 3872), Point(4901, 3905), Point(4876, 3925)];
   SPS_WalkPath(ToBank);
-  SPS_WalkToPos(Point(4884, 3926));
 end;
 
 function Failsafe(Reason: String):Boolean;
@@ -690,10 +698,16 @@ begin
         begin
           if InvCount < 2 then
           begin
-            WithdrawPrimaryOre;
+            repeat
+              WithdrawPrimaryOre;
+              Wait(400 + Random(500));
+            until(InvCount > 2)
             if (lowercase(WHATTOSMELT) = 'bronze') or (lowercase(WHATTOSMELT) = 'steel') or (lowercase(WHATTOSMELT) = 'mithril') or(lowercase(WHATTOSMELT) = 'adamant') or (lowercase(WHATTOSMELT) = 'rune') then
             begin
-              WithdrawSecondaryOre;
+              repeat
+                WithdrawSecondaryOre;
+                Wait(400 + Random(500));
+              until(InvCount > 12)
             end else CloseBank;
           end;
         end;
@@ -704,8 +718,12 @@ begin
             WithdrawCoalBag;
             if (lowercase(WHATTOSMELT) = 'bronze') or (lowercase(WHATTOSMELT) = 'steel') or (lowercase(WHATTOSMELT) = 'mithril') or(lowercase(WHATTOSMELT) = 'adamant') or (lowercase(WHATTOSMELT) = 'rune') then
             begin
-              WithdrawPrimaryOre;
-              WithdrawSecondaryOre;
+              repeat
+                WithdrawPrimaryOre;
+              until(InvCount > 4)
+              repeat
+                WithdrawSecondaryOre;
+              until(InvCount > 12)
             end else CloseBank;
           end;
         end;
@@ -817,10 +835,10 @@ begin
     MarkTime(JustInCase)
     Status('Smelting Bars.');
 
-    if (not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15))) then
+    if (not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 65))) then
     begin
       repeat
-        MMouse(92, 150, 4, 4);
+        HumanMouseBox(X1.Coordinate, Y1.Coordinate, X2.Coordinate, Y2.Coordinate);
         Fastclick(True);
         Wait(500 + Random(750));
         if TimeFromMark(JustInCase) > 5000 then Failsafe('Did not Find my Bitmap');
@@ -828,9 +846,12 @@ begin
     end;
 
     repeat
-      HumanMousebox(X1.Coordinate, Y1.Coordinate, X2.Coordinate, Y2.Coordinate);  // To click on the right ore.
-      FastClick(True);
-      Wait(1200)
+      if FindBitmapToleranceIn(SmeltBMP, X, Y, MSX1, MSY1, MSX2, MSY2, 45) then
+      begin
+        MMouse(x, y, 1, 1);
+        FastClick(True);
+        Wait(1200);
+      end;
     until(not(FindBitmapToleranceIn(Bur.BarBMP, X, Y, 273, 44, 370, 90, 15)));
 
     repeat
@@ -888,17 +909,17 @@ begin
     if (not(InvFull)) then
     begin
       WalkToBank;
+      IncEx(Bars, CountItems('dtm', Bar.BarDTM, []));
       Rest;
       repeat
         Bank;
         Wait(1200 + Random(600));
       until(InvCount > 25)
     end;
-    if (InvCount > 1) then
+    if (InvCount > 12) then
     begin
       WalkToFurnace;
       while IsMoving do
-      IncEx(Bars, CountItems('dtm', Bar.BarDTM, []));
       Wait(200);
       case COALBAG of
         False:
