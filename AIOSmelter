@@ -12,7 +12,7 @@ const
   WHATTOSMELT       = 'steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
   PRIMARYORESLOT    = 3;
   SECONDARYORESLOT  = 4;
-  COALBAG           = False; // True or False
+  COALBAG           = True; // True or False   , put it in the the first Inventory slot
 
 type TOreInfo = record
   POreDTM, SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
@@ -24,8 +24,8 @@ var
   ToFurnace, ToBank: TPointArray;
   Ore, Bar, Bur, Up, X1, Y1, X2, Y2: TOreInfo;
   aFound: Extended;
-  Label
-    Start;
+ // Label
+  //  Start;
 
 procedure DeclarePlayers;
   var i:integer;
@@ -38,7 +38,7 @@ begin
     begin
       Name := ''; //Username.
       Pass := ''; //Password.
-      Nick := 'Gucci'; //Nickname
+      Nick := ''; //Nickname
       Pin  := ''; // Pin
       Active := True;
     end;
@@ -345,7 +345,7 @@ begin
 
   For I := 0 to High(ATPA) do
   begin
-    SMART_DebugATPA(True, ATPA);
+   // SMART_DebugATPA(True, ATPA);
     MiddleTPAEx(ATPA[i], x, y);
     if High(TPA) > 100 then
     MMouse(x, y, 2, 2);
@@ -427,13 +427,13 @@ begin
   Writeln('############################################');
 
   Smart_ClearCanvas;
-  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'AIO SMELTER', clBlue);
-  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clBlue);
-  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clBlue);
-  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'Smelting:' + WHATTOSMELT, clBlue);
-  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'Bars Made:' + IntToStr(Bars), clBlue);
-  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clBlue);
-  SMART_DrawTextEx(False, 8, 156, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clBlue);
+  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'AIO SMELTER', clAqua);
+  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clAqua);
+  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clAqua);
+  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'Smelting:' + WHATTOSMELT, clAqua);
+  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'Bars Made:' + IntToStr(Bars), clAqua);
+  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clAqua);
+  SMART_DrawTextEx(False, 8, 156, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clAqua);
 end;
 
 function FindBankBooth:Boolean;
@@ -495,18 +495,21 @@ begin
 end;
 
 procedure WithdrawCoalBag;
+var
+  Attempt : Integer;
+
 begin
   MouseBankSlot(SECONDARYORESLOT, mouse_right);
-  WaitOption('ll', 500);
-  if FindDTM(CoalBagz, x, y, MIX1, MIY1, MIX2, MIY2) then
-  begin
-    MMouse(x, y, 2, 2);
-    if IsUpText('ag') then
-    begin
-      FastClick(False);
-      WaitOption('ill', 300);
-    end;
-  end;
+  WaitOption('ll', 1200);
+  repeat
+    MMouseItem(1)
+    Wait(150 + Random(50))
+    Fastclick(False)
+    WaitOption('ill', 1200);
+    Inc(Attempt)
+    if Attempt >= 5 then Failsafe('Did not fill Coalbag');
+    Wait(800)
+  until(Invcount = 1 )
 end;
 
 procedure WithdrawPrimaryOre;
@@ -675,6 +678,7 @@ begin
       begin
         ClickMouse2(False);
         WaitOption('Bank Banker', 400);
+       if  WaitFunc(@BankScreen, 100, 3000)  or WaitFunc(@PinScreen, 100, 3000) then Break;
       end;
 
       while IsMoving do
@@ -692,7 +696,7 @@ begin
 
     if BankScreen then
     begin
-      DepositAll;
+      if Coalbag then Deposit(2, 28, True) else DepositAll;
       case COALBAG of
         False:
         begin
@@ -720,9 +724,11 @@ begin
             begin
               repeat
                 WithdrawPrimaryOre;
+                Wait(1200)
               until(InvCount > 4)
               repeat
                 WithdrawSecondaryOre;
+                Wait(1200)
               until(InvCount > 12)
             end else CloseBank;
           end;
@@ -777,7 +783,7 @@ begin
        SortATPAFromMidPoint(ATPA, Point(190, 213));
        H := High(ATPA)
 
-      SMART_DebugATPA(True, ATPA);
+    //  SMART_DebugATPA(True, ATPA);
 
        begin
         for i:=0 to H do
@@ -797,6 +803,7 @@ begin
             until((TimeFromMark(FurnTooLong) > 25000) or SmeltingScreen)
           end;
         end;
+        if TimeFromMark(FurnTooLong) > 25000 then Failsafe('Couldnt find the furnace')
     end;
 end;
 
@@ -913,7 +920,6 @@ begin
       Rest;
       repeat
         Bank;
-        Wait(1200 + Random(600));
       until(InvCount > 25)
     end;
     if (InvCount > 12) then
@@ -929,10 +935,8 @@ begin
         end;
         True:
         begin
-          Start:
           FindFurnace;
           SmeltThem;
-          goto Start;
         end;
       end;
     end;
