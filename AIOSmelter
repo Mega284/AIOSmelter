@@ -494,22 +494,23 @@ begin
   end else Exit;
 end;
 
-procedure WithdrawCoalBag;
+function WithdrawCoalBag: Boolean;
 var
   Attempt : Integer;
 
 begin
-  MouseBankSlot(SECONDARYORESLOT, mouse_right);
-  WaitOption('ll', 1200);
   repeat
+    MouseBankSlot(SECONDARYORESLOT, mouse_right);
+    WaitOption('ll', 1200);
     MMouseItem(1)
     Wait(150 + Random(50))
     Fastclick(False)
     WaitOption('ill', 1200);
+    if FindBlackChatMessage('full') then begin Deposit(2, 28, True); Deposit(2, 28, 1) end;
     Inc(Attempt)
     if Attempt >= 5 then Failsafe('Did not fill Coalbag');
     Wait(800)
-  until(Invcount = 1 )
+  until(Invcount = 1)
 end;
 
 procedure WithdrawPrimaryOre;
@@ -669,7 +670,7 @@ end;
 
 procedure Bank;
 var
-  Bx, By: integer;
+ i, Bx, By: integer;
 begin
   if (not(IsMoving)) then
   begin
@@ -696,10 +697,11 @@ begin
 
     if BankScreen then
     begin
-      if Coalbag then Deposit(2, 28, True) else DepositAll;
+
       case COALBAG of
         False:
         begin
+          DepositAll;
           if InvCount < 2 then
           begin
             repeat
@@ -717,6 +719,17 @@ begin
         end;
         True:
         begin
+          Deposit(2, 28, True)
+
+          for i := 2 to 28 do
+            if ExistsItem(i) then
+            begin
+              MMouseItem(i)
+              Wait(150 + Random(50))
+              Fastclick(False)
+              WaitOption('Dep', 1200);
+            end;
+
           if InvCount < 2 then
           begin
             WithdrawCoalBag;
@@ -757,12 +770,13 @@ end;
 
 function FindFurnace:Boolean;
 var
-  FurnToolong, x, y, i, H, CTS :Integer;
+  Attempt, FurnToolong, x, y, i, H, CTS :Integer;
   TPA: TpointArray;
   ATPA: T2DPointArray;
 
 begin
-  if Bankscreen then
+  repeat
+  if Smeltingscreen then
   begin
     Result := true;
     Exit;
@@ -785,26 +799,26 @@ begin
 
     //  SMART_DebugATPA(True, ATPA);
 
-       begin
-        for i:=0 to H do
+      for i:=0 to H do
+      begin
+        MiddleTpaEx(ATPA[i], x, y);
+        MMouse(x, y, 5, 5);
+        if WaitUptextMulti(['Smel', 'Furn', 'ace'] , 800) then
+        begin
+          Fastclick(True);
+          if WaitFunc(@SmeltingScreen, 100 , 3000) then
           begin
-             repeat
-              MiddleTpaEx(ATPA[i], x, y);
-              MMouse(x, y, 5, 5);
-              if WaitUptextMulti(['Smel', 'Furn', 'ace'] , 800) then
-              begin
-                Fastclick(True);
-                if WaitFunc(@SmeltingScreen, 100 , 3000) then
-                begin
-                  Result := True;
-                  Exit
-                end;
-              end;
-            until((TimeFromMark(FurnTooLong) > 25000) or SmeltingScreen)
+            Result := True;
+            Exit;
           end;
-        end;
-        if TimeFromMark(FurnTooLong) > 25000 then Failsafe('Couldnt find the furnace')
+        end else if (TimeFromMark(FurnToolong) > 15000) then Break;
+      end;
     end;
+
+  SPS_WalkToPos(Point(4895, 3847))
+  Inc(Attempt);
+  if (Attempt >= 5) then Failsafe('Did not find furnace');
+  until(SmeltingScreen)
 end;
 
 procedure AntiBan;
