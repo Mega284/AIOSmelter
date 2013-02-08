@@ -333,7 +333,6 @@ var
   TPA: TPointArray;
   ATPA: Array of TPointArray;
 begin
-  Smart_ClearCanvas;
   CTS := GetColorToleranceSpeed;
   ColorToleranceSpeed(2);
   SetColorSpeed2Modifiers(0.09, 1.45);
@@ -405,7 +404,7 @@ end;
 
 procedure Proggy;
 var
-  CurrentEXP, XP, XPH, Bars: integer;
+  CurrentEXP, XP, XPH: integer;
 begin
   Status('Reporting Progress.');
   if (not(LoggedIn)) then
@@ -500,10 +499,9 @@ if FindBlackChatMessage('full') then Result := True
 else Result := False;
 end;
 
-function WithdrawCoalBag: Boolean;
+procedure WithdrawCoalBag;
 var
   Attempt : Integer;
-
 begin
   repeat
     MouseBankSlot(SECONDARYORESLOT, mouse_right);
@@ -935,8 +933,9 @@ begin
     end;
     if (not(InvFull)) then
     begin
-      WalkToBank;
       IncEx(Bars, CountItems('dtm', Bar.BarDTM, []));
+      Proggy;
+      WalkToBank;
       Rest;
       repeat
         Bank;
