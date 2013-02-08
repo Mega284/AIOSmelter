@@ -404,17 +404,18 @@ end;
 
 procedure Proggy;
 var
-  CurrentEXP, XP, XPH: integer;
+  CurrentEXP, XP, XPH, BarsH, TimeRun: integer;
 begin
   Status('Reporting Progress.');
   if (not(LoggedIn)) then
   begin
     Exit;
   end;
-
+  TimeRun := (GetTimeRunning / 1000);
   CurrentEXP := GetXPBarTotal;
   XPH := round((CurrentEXP - StartEXP) / (GetTimeRunning / 3600000.0));
   XP := (CurrentEXP - StartEXP);
+  BarsH := ( 3600 * Bars / (TimeRun));
 
   ClearDebug;
   Writeln('############### AIO SMELTER ################');
@@ -426,13 +427,13 @@ begin
   Writeln('############################################');
 
   Smart_ClearCanvas;
-  SMART_DrawTextEx(False, 8, 79, SmallCharsNS, 'AIO SMELTER', clAqua);
+  SMART_DrawTextEx(False, 8, 20, BigChars, 'Gucci and Sjoekeloes AIO SMELTER', 8850438);
   SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clAqua);
   SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clAqua);
   SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'Smelting:' + WHATTOSMELT, clAqua);
   SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'Bars Made:' + IntToStr(Bars), clAqua);
-  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'XP Gained:' + IntToStr(XP), clAqua);
-  SMART_DrawTextEx(False, 8, 156, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clAqua);
+  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'Bars/H:' + IntToStr(BarsH), clAqua);
+  SMART_DrawTextEx(False, 8, 159, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clAqua);
 end;
 
 function FindBankBooth:Boolean;
@@ -922,6 +923,7 @@ begin
   begin
     LoginPlayer;
   end;
+  Proggy;
   Wait(4000 + Random(400));
   StartEXP := GetXPBarTotal;
   FindNormalRandoms;
