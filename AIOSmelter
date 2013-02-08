@@ -9,9 +9,9 @@ const
   MEMBERS           = True; // Member or not
   NUMBOFPLAYERS     = 1;
   STARTPLAYER       = 0;
-  WHATTOSMELT       = 'steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
-  PRIMARYORESLOT    = 3;
-  SECONDARYORESLOT  = 4;
+  WHATTOSMELT       = 'Steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
+  PRIMARYORESLOT    = 7;
+  SECONDARYORESLOT  = 8;
   COALBAG           = True; // True or False   , put it in the the first Inventory slot
 
 type TOreInfo = record
@@ -342,6 +342,7 @@ begin
   FindColorsSpiralTolerance(MSCX, MSCY, TPA, 2709600, MSX1, MSY1, MSX2, MSY2, 12);
   ColorToleranceSpeed(CTS);
   ATPA := TPAToATPAEx(TPA, 15, 15);
+  SortATPASize(ATPA, True)
 
   For I := 0 to High(ATPA) do
   begin
@@ -353,6 +354,7 @@ begin
     begin
       Result := True;
       GetMousePos(x, y);
+      SMarT_Clearcanvas
       Break;
     end;
   end;
@@ -494,6 +496,12 @@ begin
   end else Exit;
 end;
 
+function FullCoalBag: Boolean;
+begin
+if FindBlackChatMessage('full') then Result := True
+else Result := False;
+end;
+
 function WithdrawCoalBag: Boolean;
 var
   Attempt : Integer;
@@ -503,13 +511,11 @@ begin
     MouseBankSlot(SECONDARYORESLOT, mouse_right);
     WaitOption('ll', 1200);
     MMouseItem(1)
-    Wait(150 + Random(50))
     Fastclick(False)
     WaitOption('ill', 1200);
-    if FindBlackChatMessage('full') then begin Deposit(2, 28, True); Deposit(2, 28, 1) end;
+    if WaitFunc(@FullCoalBag, 100, 1200) then begin Deposit(2, 28, True) Deposit(2, 28, 1)  Exit; end;
     Inc(Attempt)
     if Attempt >= 5 then Failsafe('Did not fill Coalbag');
-    Wait(800)
   until(Invcount = 1)
 end;
 
@@ -543,7 +549,7 @@ begin
           begin
             if (not(ChooseOption('14'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               ChooseOption('X');
               Wait(500 + Random(500));
               TypeSend('14');
@@ -554,7 +560,7 @@ begin
           begin
             if (not(ChooseOption('9'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -566,7 +572,7 @@ begin
           begin
             if (not(ChooseOption('5'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -578,7 +584,7 @@ begin
           begin
             if (not(ChooseOption('4'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -590,7 +596,7 @@ begin
           begin
             if (not(ChooseOption('3'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -606,7 +612,7 @@ begin
           begin
             if (not(ChooseOption('18'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -618,7 +624,7 @@ begin
           begin
             if (not(ChooseOption('11'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -630,7 +636,7 @@ begin
           begin
             if (not(ChooseOption('7'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -642,7 +648,7 @@ begin
           begin
             if (not(ChooseOption('6'))) then
             begin
-              MouseBankSlot(SECONDARYORESLOT, 3);
+              MouseBankSlot(PRIMARYORESLOT, 3);
               FastClick(False);
               ChooseOption('X');
               Wait(500 + Random(500));
@@ -675,6 +681,7 @@ begin
   if (not(IsMoving)) then
   begin
     repeat
+      if BankScreen or PinScreen then Break;
       if FindBanker(Bx, By) or FindBankBooth then
       begin
         ClickMouse2(False);
@@ -795,6 +802,7 @@ begin
        SplitTPAExWrap(TPA, 20, 20, ATPA);
 
        SortATPAFromMidPoint(ATPA, Point(190, 213));
+       SortATPASize(ATPA, True);
        H := High(ATPA)
 
     //  SMART_DebugATPA(True, ATPA);
