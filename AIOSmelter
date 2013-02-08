@@ -24,8 +24,6 @@ var
   ToFurnace, ToBank: TPointArray;
   Ore, Bar, Bur, Up, X1, Y1, X2, Y2: TOreInfo;
   aFound: Extended;
- // Label
-  //  Start;
 
 procedure DeclarePlayers;
   var i:integer;
@@ -339,10 +337,11 @@ begin
   CTS := GetColorToleranceSpeed;
   ColorToleranceSpeed(2);
   SetColorSpeed2Modifiers(0.09, 1.45);
-  FindColorsSpiralTolerance(MSCX, MSCY, TPA, 2709600, MSX1, MSY1, MSX2, MSY2, 12);
+  FindColorsTolerance(TPA, 2709600, MSX1, MSY1, MSX2, MSY2, 12);
   ColorToleranceSpeed(CTS);
-  ATPA := TPAToATPAEx(TPA, 15, 15);
+  TPAToATPAExWrap(TPA, 15, 15, ATPA);
   SortATPASize(ATPA, True)
+  SortATPAFromMidPoint(ATPA, Point(MSCX, MSCY))
 
   For I := 0 to High(ATPA) do
   begin
@@ -354,7 +353,6 @@ begin
     begin
       Result := True;
       GetMousePos(x, y);
-      SMarT_Clearcanvas
       Break;
     end;
   end;
