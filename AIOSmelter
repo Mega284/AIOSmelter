@@ -6,13 +6,15 @@ program AIOSmelter;
 {$I SRL/SRL/Misc/SmartGraphics.Simba}
 
 const
+  SRLSTATS_USER     = '';
+  SRLSTATS_PASS     = '';
   MEMBERS           = True; // Member or not
   NUMBOFPLAYERS     = 1;
   STARTPLAYER       = 0;
   WHATTOSMELT       = 'Steel'; // Support for Bronze, Iron, Steel, Gold, Adamant and Rune
-  PRIMARYORESLOT    = 7;
-  SECONDARYORESLOT  = 8;
-  COALBAG           = True; // True or False   , put it in the the first Inventory slot
+  PRIMARYORESLOT    = 3;
+  SECONDARYORESLOT  = 4;
+  COALBAG           = False; // True or False   , put it in the the first Inventory slot
 
 type TOreInfo = record
   POreDTM, SOreDTM, BarDTM, BarBMP, WithBMP, Coordinate: Integer;
@@ -416,6 +418,7 @@ begin
   XPH := round((CurrentEXP - StartEXP) / (GetTimeRunning / 3600000.0));
   XP := (CurrentEXP - StartEXP);
   BarsH := ( 3600 * Bars / (TimeRun));
+  Stats_IncVariable('Smithing EXP (Gained)', (XP));
 
   ClearDebug;
   Writeln('############### AIO SMELTER ################');
@@ -425,15 +428,15 @@ begin
   Writeln('|= Bars Made : ' + IntToStr(Bars));
   Writeln('|= EXP Gained : ' + IntToStr(XP));
   Writeln('############################################');
-
+  Stats_Commit;
   Smart_ClearCanvas;
   SMART_DrawTextEx(False, 8, 20, BigChars, 'Gucci and Sjoekeloes AIO SMELTER', 8850438);
-  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player:' + Players[CurrentPlayer].Nick, clAqua);
-  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running:' + TimeRunning, clAqua);
-  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'Smelting:' + WHATTOSMELT, clAqua);
-  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'Bars Made:' + IntToStr(Bars), clAqua);
-  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'Bars/H:' + IntToStr(BarsH), clAqua);
-  SMART_DrawTextEx(False, 8, 159, SmallCharsNS, 'XP/H:' + IntToStr(XPH), clAqua);
+  SMART_DrawTextEx(False, 8, 92, SmallCharsNS, 'Player : ' + Players[CurrentPlayer].Nick, clAqua);
+  SMART_DrawTextEx(False, 8, 105, SmallCharsNS, 'Time Running : ' + TimeRunning, clAqua);
+  SMART_DrawTextEx(False, 8, 118, SmallCharsNS, 'Smelting : ' + WHATTOSMELT, clAqua);
+  SMART_DrawTextEx(False, 8, 131, SmallCharsNS, 'Bars Made : ' + IntToStr(Bars), clAqua);
+  SMART_DrawTextEx(False, 8, 143, SmallCharsNS, 'Bars/H : ' + IntToStr(BarsH), clAqua);
+  SMART_DrawTextEx(False, 8, 159, SmallCharsNS, 'XP/H : ' + IntToStr(XPH), clAqua);
 end;
 
 function FindBankBooth:Boolean;
@@ -923,11 +926,12 @@ begin
   begin
     LoginPlayer;
   end;
-  Proggy;
-  Wait(4000 + Random(400));
+  Wait(4000 + Random(2000));
   StartEXP := GetXPBarTotal;
   FindNormalRandoms;
   ClickNorth(SRL_ANGLE_HIGH);
+  SetupSRLStats(1317, SRLSTATS_USER, SRLSTATS_PASS);
+  Proggy;
   repeat
     if (not(LoggedIn)) then
     begin
@@ -945,7 +949,9 @@ begin
     end;
     if (InvCount > 12) then
     begin
-      WalkToFurnace;
+      repeat
+        WalkToFurnace;
+      until(FindSymbol(x, y, 'furnace') or FindSymbol(x, y, 'tanner'))
       while IsMoving do
       Wait(200);
       case COALBAG of
